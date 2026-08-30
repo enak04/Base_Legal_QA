@@ -7,6 +7,11 @@ DEFAULT_DATA_DIR below.
 """
 
 import os
+
+# Configure HuggingFace to use a local cache directory inside the repository
+_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+os.environ["HF_HOME"] = os.path.join(_REPO_ROOT, ".hf_cache")
+
 import torch
 
 try:
@@ -14,9 +19,6 @@ try:
     load_dotenv()
 except ImportError:
     pass
-
-# ── Root of the repository ──────────────────────────────────────────────────
-_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # ── Default data directory (flagship experiment) ────────────────────────────
 DEFAULT_DATA_DIR = os.environ.get(

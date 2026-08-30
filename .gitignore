@@ -21,3 +21,6 @@ env/
 # System files
 .DS_Store
 Thumbs.db
+
+# HuggingFace local cache
+.hf_cache/

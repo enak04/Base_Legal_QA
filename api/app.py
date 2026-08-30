@@ -24,6 +24,11 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
 import os
+
+# Configure HuggingFace to use a local cache directory inside the repository
+repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+os.environ["HF_HOME"] = os.path.join(repo_root, ".hf_cache")
+
 import copy
 import torch
 from typing import Literal
