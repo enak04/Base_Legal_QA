@@ -101,6 +101,13 @@ def get_engine_for_mode(mode: str) -> LegalQAEngine:
         infer_mod = _load_infer_module(cfg)
         device = torch.device(cfg["device"])
         shared_tok, shared_bert = infer_mod.load_bert(cfg["bert_model"], device)
+        
+        # Apply 8-bit dynamic quantization to save ~330MB of RAM on CPU
+        if device.type == "cpu":
+            logger.info("Applying 8-bit dynamic quantization to InLegalBERT for CPU...")
+            shared_bert = torch.quantization.quantize_dynamic(
+                shared_bert, {torch.nn.Linear}, dtype=torch.qint8
+            )
 
     # Load engine models using the shared BERT instances
     eng.load_models(shared_tok=shared_tok, shared_bert=shared_bert)

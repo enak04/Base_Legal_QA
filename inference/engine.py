@@ -269,6 +269,12 @@ class LegalQAEngine:
             self._tok, self._bert = self._infer.load_bert(
                 config["bert_model"], self._device
             )
+            # Apply 8-bit dynamic quantization to save ~330MB of RAM on CPU
+            if self._device.type == "cpu":
+                logger.info("Applying 8-bit dynamic quantization to InLegalBERT for CPU...")
+                self._bert = torch.quantization.quantize_dynamic(
+                    self._bert, {torch.nn.Linear}, dtype=torch.qint8
+                )
 
         # ── Initialize seed chain discovery ─────────────────────────────────
         logger.info("Building TF-IDF index for seed chain discovery...")
