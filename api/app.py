@@ -1,0 +1,251 @@
+"""
+Legal QA REST API
+=================
+
+FastAPI application that exposes the existing HKG+PC+RL inference pipeline
+as a standalone service.
+
+Endpoints:
+    GET  /health   → {"status": "ok"}
+    POST /predict  → {"question", "answer", "reasoning_chain", "retrieved_cases"}
+
+Usage:
+    uvicorn api.app:app --host 0.0.0.0 --port 8000
+"""
+
+import logging
+import traceback
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel, Field
+
+import os
+import copy
+from typing import Literal
+
+from inference.config import INFERENCE_CONFIG, get_required_files
+from inference.engine import LegalQAEngine
+
+# ── Logging ─────────────────────────────────────────────────────────────────
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s  %(levelname)-8s  %(name)s  %(message)s",
+)
+logger = logging.getLogger("legal_qa_api")
+
+# ── Dynamic Config Construction ──────────────────────────────────────────────
+def make_config_for_mode(mode: str) -> dict:
+    cfg = copy.deepcopy(INFERENCE_CONFIG)
+    
+    # Resolve the data directory for the specific mode
+    repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    mode_dir = os.path.join(repo_root, "HKG+PC+RL", "Employment_Labour", mode)
+    
+    cfg["LEGAL_QA_DATA_DIR"] = mode_dir
+    
+    def _data_path(filename: str) -> str:
+        return os.path.join(mode_dir, filename)
+        
+    cfg["rl_model_path"] = _data_path("rl_policy_model.pt")
+    cfg["dssm_model_path"] = _data_path("dssm_model.pt")
+    cfg["retrieval_index"] = _data_path("dssm_retrieval_index.pt")
+    cfg["node_emb_cache_path"] = _data_path("node_embeddings.pt")
+    cfg["kg_path"] = _data_path("edges.csv")
+    cfg["nodes_csv_path"] = _data_path("nodes.csv")
+    
+    return cfg
+
+# ── Engines Dictionary ──────────────────────────────────────────────────────
+engines: dict[str, LegalQAEngine] = {}
+
+# ── Lifespan (model loading at startup) ────────────────────────────────────
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Load all model variants once when the server starts."""
+    logger.info("=" * 60)
+    logger.info("  Legal QA API — Starting up (loading all modes)")
+    logger.info("=" * 60)
+
+    loaded_modes = []
+    for mode in ["actionable", "informative", "readable"]:
+        logger.info(f"Loading engine for mode: {mode}...")
+        cfg = make_config_for_mode(mode)
+        eng = LegalQAEngine(cfg)
+        
+        missing = eng.check_required_files()
+        if missing:
+            logger.error("=" * 60)
+            logger.error(f"  MISSING REQUIRED FILES FOR MODE: {mode.upper()}")
+            logger.error("=" * 60)
+            for f in missing:
+                logger.error("  ✗  %s", f["name"])
+                logger.error("     Path: %s", f["path"])
+                logger.error("     %s", f["description"])
+            logger.error("=" * 60)
+        else:
+            try:
+                eng.load_models()
+                engines[mode] = eng
+                loaded_modes.append(mode)
+                logger.info(f"Engine for mode '{mode}' loaded successfully.")
+            except Exception as e:
+                logger.error(f"Failed to load engine for mode '{mode}': {e}", exc_info=True)
+                
+    if not engines:
+        logger.error("=" * 60)
+        logger.error("  CRITICAL: No engine modes could be loaded.")
+        logger.error("  All /predict requests will return 503 errors.")
+        logger.error("=" * 60)
+    else:
+        logger.info("=" * 60)
+        logger.info("  Legal QA API — Ready to serve requests")
+        logger.info("  Loaded modes: %s", ", ".join(loaded_modes))
+        logger.info("=" * 60)
+
+    yield  # Server runs here
+
+
+# ── FastAPI app ─────────────────────────────────────────────────────────────
+app = FastAPI(
+    title="Legal QA API",
+    description=(
+        "REST API for the HKG+PC+RL Legal Question Answering framework. "
+        "Combines Hierarchical Knowledge Graphs, PPO Reinforcement Learning, "
+        "DSSM past-case retrieval, cross-encoder reranking, and GPT-4o "
+        "generation to produce structured legal answers."
+    ),
+    version="1.0.0",
+    lifespan=lifespan,
+)
+
+# ── CORS ────────────────────────────────────────────────────────────────────
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+
+# ── Request / Response schemas ──────────────────────────────────────────────
+
+class PredictRequest(BaseModel):
+    question: str = Field(
+        ...,
+        min_length=1,
+        description="The legal question to answer.",
+        json_schema_extra={"example": "My employer has not paid my salary for three months."},
+    )
+    mode: Literal["actionable", "informative", "readable"] = Field(
+        "actionable",
+        description="The target answer tuning mode.",
+    )
+
+
+class RetrievedCase(BaseModel):
+    question: str
+    answer: str
+
+
+class PredictResponse(BaseModel):
+    question: str
+    answer: str
+    reasoning_chain: list[str]
+    retrieved_cases: list[RetrievedCase]
+
+
+class HealthResponse(BaseModel):
+    status: str
+
+
+class ErrorResponse(BaseModel):
+    error: str
+
+
+# ── Global exception handler ───────────────────────────────────────────────
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    """Catch-all handler that never exposes stack traces or API keys."""
+    logger.error("Unhandled exception: %s", exc, exc_info=True)
+    return JSONResponse(
+        status_code=500,
+        content={"error": "An internal error occurred while processing the request."},
+    )
+
+
+
+
+# ── Endpoints ──────────────────────────────────────────────────────────────
+
+@app.get(
+    "/health",
+    response_model=HealthResponse,
+    summary="Health check",
+)
+async def health():
+    """Returns server health status."""
+    return {"status": "ok"}
+
+
+@app.post(
+    "/predict",
+    response_model=PredictResponse,
+    responses={
+        400: {"model": ErrorResponse, "description": "Invalid request"},
+        503: {"model": ErrorResponse, "description": "Models not loaded"},
+        500: {"model": ErrorResponse, "description": "Inference error"},
+    },
+    summary="Run legal QA inference",
+)
+async def predict(request: PredictRequest):
+    """
+    Run the complete HKG+PC+RL inference pipeline for a single question.
+
+    The pipeline performs:
+    1. Seed chain discovery (TF-IDF over KG node labels)
+    2. PPO RL reasoning-path expansion on the Hierarchical Knowledge Graph
+    3. Two-stage DSSM + cross-encoder past-case retrieval
+    4. Structured CoT prompt construction
+    5. GPT-4o answer generation
+    6. Post-processing
+    """
+    # ── Validate ────────────────────────────────────────────────────────
+    question = request.question.strip()
+    if not question:
+        raise HTTPException(status_code=400, detail="Question cannot be empty.")
+
+    # ── Check engine readiness ──────────────────────────────────────────
+    mode = request.mode
+    if mode not in engines:
+        raise HTTPException(
+            status_code=503,
+            detail=(
+                f"Mode '{mode}' is not loaded on this server. "
+                "Required checkpoint files for this mode may be missing. "
+                "Check server logs for details."
+            ),
+        )
+
+    # ── Run inference ───────────────────────────────────────────────────
+    try:
+        result = engines[mode].predict(question)
+    except Exception as e:
+        logger.error("Inference failed for question: %s", question, exc_info=True)
+
+        # Provide a user-friendly message without leaking internals
+        error_type = type(e).__name__
+        if "openai" in error_type.lower() or "api" in str(e).lower():
+            detail = "The language model service encountered an error. Please try again later."
+        else:
+            detail = "An error occurred during inference. Please try again."
+
+        raise HTTPException(status_code=500, detail=detail)
+
+    return result
