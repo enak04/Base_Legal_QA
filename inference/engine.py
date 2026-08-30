@@ -237,12 +237,22 @@ class LegalQAEngine:
          self._node2idx, self._idx2node) = self._infer.load_rl_model(
             config["rl_model_path"], self._device
         )
+        if self._device.type == "cpu":
+            logger.info("Applying dynamic quantization to RL policy model...")
+            self._policy = torch.quantization.quantize_dynamic(
+                self._policy, {torch.nn.Linear}, dtype=torch.qint8
+            )
 
         # ── Load DSSM model ────────────────────────────────────────────────
         logger.info("Loading DSSM model from %s...", config["dssm_model_path"])
         self._dssm = self._infer.load_dssm_model(
             config["dssm_model_path"], self._device
         )
+        if self._device.type == "cpu":
+            logger.info("Applying dynamic quantization to DSSM model...")
+            self._dssm = torch.quantization.quantize_dynamic(
+                self._dssm, {torch.nn.Linear}, dtype=torch.qint8
+            )
 
         # ── Load retrieval index ────────────────────────────────────────────
         logger.info("Loading retrieval index from %s...", config["retrieval_index"])
@@ -286,6 +296,10 @@ class LegalQAEngine:
         )
 
         self._loaded = True
+        
+        # Clean up temporary tensors created during loading
+        import gc
+        gc.collect()
         logger.info("All models loaded successfully.")
 
 
