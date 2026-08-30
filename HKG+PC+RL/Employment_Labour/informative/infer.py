@@ -102,7 +102,7 @@ def load_kg(kg_path):
 
 def load_bert(model_name, device):
     tok  = BertTokenizer.from_pretrained(model_name)
-    bert = BertModel.from_pretrained(model_name).to(device)
+    bert = BertModel.from_pretrained(model_name, low_cpu_mem_usage=True).to(device)
     bert.eval()
     return tok, bert
 
