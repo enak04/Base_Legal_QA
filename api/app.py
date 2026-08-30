@@ -16,6 +16,7 @@ Usage:
 import logging
 import traceback
 from contextlib import asynccontextmanager
+import gc
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -24,6 +25,7 @@ from pydantic import BaseModel, Field
 
 import os
 import copy
+import torch
 from typing import Literal
 
 from inference.config import INFERENCE_CONFIG, get_required_files
@@ -61,50 +63,69 @@ def make_config_for_mode(mode: str) -> dict:
 # ── Engines Dictionary ──────────────────────────────────────────────────────
 engines: dict[str, LegalQAEngine] = {}
 
+# ── Shared InLegalBERT instances ───────────────────────────────────────────
+shared_tok = None
+shared_bert = None
+
+def get_engine_for_mode(mode: str) -> LegalQAEngine:
+    global shared_tok, shared_bert
+
+    # If the engine is already loaded, return it
+    if mode in engines:
+        return engines[mode]
+
+    # Otherwise, unload any other loaded engines to save RAM
+    if engines:
+        logger.info("Unloading existing engine modes to free memory...")
+        engines.clear()
+        gc.collect()
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+
+    logger.info(f"Loading engine for mode: {mode}...")
+    cfg = make_config_for_mode(mode)
+    eng = LegalQAEngine(cfg)
+
+    # Check that required files are present
+    missing = eng.check_required_files()
+    if missing:
+        msg_lines = [f"Missing required checkpoints for mode {mode}:"]
+        for f in missing:
+            msg_lines.append(f"  ✗ {f['name']} (Path: {f['path']})")
+        raise FileNotFoundError("\n".join(msg_lines))
+
+    # Initialize shared model/tokenizer if not already loaded
+    if shared_tok is None or shared_bert is None:
+        logger.info("Initializing globally shared InLegalBERT...")
+        from inference.engine import _load_infer_module
+        infer_mod = _load_infer_module(cfg)
+        device = torch.device(cfg["device"])
+        shared_tok, shared_bert = infer_mod.load_bert(cfg["bert_model"], device)
+
+    # Load engine models using the shared BERT instances
+    eng.load_models(shared_tok=shared_tok, shared_bert=shared_bert)
+    engines[mode] = eng
+    return eng
+
 # ── Lifespan (model loading at startup) ────────────────────────────────────
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Load all model variants once when the server starts."""
+    """Load only the default 'actionable' model at startup to save memory on free tiers."""
     logger.info("=" * 60)
-    logger.info("  Legal QA API — Starting up (loading all modes)")
+    logger.info("  Legal QA API — Starting up (loading default mode: actionable)")
     logger.info("=" * 60)
 
-    loaded_modes = []
-    for mode in ["actionable", "informative", "readable"]:
-        logger.info(f"Loading engine for mode: {mode}...")
-        cfg = make_config_for_mode(mode)
-        eng = LegalQAEngine(cfg)
-        
-        missing = eng.check_required_files()
-        if missing:
-            logger.error("=" * 60)
-            logger.error(f"  MISSING REQUIRED FILES FOR MODE: {mode.upper()}")
-            logger.error("=" * 60)
-            for f in missing:
-                logger.error("  ✗  %s", f["name"])
-                logger.error("     Path: %s", f["path"])
-                logger.error("     %s", f["description"])
-            logger.error("=" * 60)
-        else:
-            try:
-                eng.load_models()
-                engines[mode] = eng
-                loaded_modes.append(mode)
-                logger.info(f"Engine for mode '{mode}' loaded successfully.")
-            except Exception as e:
-                logger.error(f"Failed to load engine for mode '{mode}': {e}", exc_info=True)
-                
-    if not engines:
-        logger.error("=" * 60)
-        logger.error("  CRITICAL: No engine modes could be loaded.")
-        logger.error("  All /predict requests will return 503 errors.")
-        logger.error("=" * 60)
-    else:
+    try:
+        get_engine_for_mode("actionable")
         logger.info("=" * 60)
-        logger.info("  Legal QA API — Ready to serve requests")
-        logger.info("  Loaded modes: %s", ", ".join(loaded_modes))
+        logger.info("  Legal QA API — Ready to serve requests (default mode loaded)")
         logger.info("=" * 60)
+    except Exception as e:
+        logger.error("=" * 60)
+        logger.error("  CRITICAL: Default engine mode 'actionable' could not be loaded.")
+        logger.error("  Reason: %s", e, exc_info=True)
+        logger.error("=" * 60)
 
     yield  # Server runs here
 
@@ -221,21 +242,20 @@ async def predict(request: PredictRequest):
     if not question:
         raise HTTPException(status_code=400, detail="Question cannot be empty.")
 
-    # ── Check engine readiness ──────────────────────────────────────────
+    # ── Get or load the requested engine mode ───────────────────────────
     mode = request.mode
-    if mode not in engines:
+    try:
+        engine = get_engine_for_mode(mode)
+    except Exception as e:
+        logger.error("Failed to load engine for mode %s: %s", mode, e, exc_info=True)
         raise HTTPException(
             status_code=503,
-            detail=(
-                f"Mode '{mode}' is not loaded on this server. "
-                "Required checkpoint files for this mode may be missing. "
-                "Check server logs for details."
-            ),
+            detail=f"Mode '{mode}' could not be loaded: {e}",
         )
 
     # ── Run inference ───────────────────────────────────────────────────
     try:
-        result = engines[mode].predict(question)
+        result = engine.predict(question)
     except Exception as e:
         logger.error("Inference failed for question: %s", question, exc_info=True)
 

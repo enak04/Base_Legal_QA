@@ -197,7 +197,7 @@ class LegalQAEngine:
                 missing.append(f)
         return missing
 
-    def load_models(self):
+    def load_models(self, shared_tok=None, shared_bert=None):
         """
         Load all models, checkpoints, KG, embeddings, and indexes.
         This must be called once before predict().
@@ -260,10 +260,15 @@ class LegalQAEngine:
         logger.info("Node embeddings: %d nodes cached", len(self._node_emb_dict))
 
         # ── Load InLegalBERT ────────────────────────────────────────────────
-        logger.info("Loading InLegalBERT (%s)...", config["bert_model"])
-        self._tok, self._bert = self._infer.load_bert(
-            config["bert_model"], self._device
-        )
+        if shared_tok is not None and shared_bert is not None:
+            logger.info("Reusing globally shared InLegalBERT.")
+            self._tok = shared_tok
+            self._bert = shared_bert
+        else:
+            logger.info("Loading InLegalBERT (%s)...", config["bert_model"])
+            self._tok, self._bert = self._infer.load_bert(
+                config["bert_model"], self._device
+            )
 
         # ── Initialize seed chain discovery ─────────────────────────────────
         logger.info("Building TF-IDF index for seed chain discovery...")
@@ -276,6 +281,7 @@ class LegalQAEngine:
 
         self._loaded = True
         logger.info("All models loaded successfully.")
+
 
     def predict(self, question: str) -> dict:
         """
