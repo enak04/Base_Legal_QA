@@ -101,8 +101,12 @@ class TestPredictModelsNotLoaded:
     def test_returns_503_when_models_missing(self, client):
         """If models aren't loaded, /predict should return 503, not crash."""
         from api.app import engines
-        if engines:
-            pytest.skip("Some models are loaded — cannot test 503 path.")
+        from inference.config import get_required_files
+        import os
+        # Check if checkpoints are present for default actionable mode
+        checkpoints_exist = all(os.path.isfile(f["path"]) for f in get_required_files())
+        if engines or checkpoints_exist:
+            pytest.skip("Model checkpoints are present (or loaded) — skipping 503 path.")
 
         resp = client.post(
             "/predict",
@@ -122,8 +126,10 @@ class TestPredictInference:
 
     @pytest.fixture(autouse=True)
     def _skip_if_no_models(self, client):
-        from api.app import engines
-        if "actionable" not in engines:
+        from inference.config import get_required_files
+        import os
+        checkpoints_exist = all(os.path.isfile(f["path"]) for f in get_required_files())
+        if not checkpoints_exist:
             pytest.skip("Model checkpoints for 'actionable' not available — skipping inference tests.")
 
     def test_valid_question_returns_full_response(self, client):
@@ -181,10 +187,21 @@ class TestPredictInference:
 
     def test_different_modes(self, client):
         """Verify that different modes can be queried."""
-        from api.app import engines
+        from api.app import make_config_for_mode
+        import os
         for mode in ["actionable", "informative", "readable"]:
-            if mode not in engines:
-                pytest.skip(f"Mode {mode} not loaded - cannot test.")
+            cfg = make_config_for_mode(mode)
+            paths = [
+                cfg["rl_model_path"],
+                cfg["dssm_model_path"],
+                cfg["retrieval_index"],
+                cfg["node_emb_cache_path"],
+                cfg["kg_path"],
+                cfg["nodes_csv_path"],
+            ]
+            checkpoints_exist = all(os.path.isfile(p) for p in paths)
+            if not checkpoints_exist:
+                pytest.skip(f"Mode {mode} checkpoints not available - skipping.")
             resp = client.post(
                 "/predict",
                 json={

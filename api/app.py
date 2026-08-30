@@ -118,21 +118,11 @@ def get_engine_for_mode(mode: str) -> LegalQAEngine:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Load only the default 'actionable' model at startup to save memory on free tiers."""
+    """Lifespan events handler. Models are loaded lazily on the first request to minimize startup RAM."""
     logger.info("=" * 60)
-    logger.info("  Legal QA API — Starting up (loading default mode: actionable)")
+    logger.info("  Legal QA API — Started successfully")
+    logger.info("  Models will be loaded lazily on the first /predict request to optimize memory.")
     logger.info("=" * 60)
-
-    try:
-        get_engine_for_mode("actionable")
-        logger.info("=" * 60)
-        logger.info("  Legal QA API — Ready to serve requests (default mode loaded)")
-        logger.info("=" * 60)
-    except Exception as e:
-        logger.error("=" * 60)
-        logger.error("  CRITICAL: Default engine mode 'actionable' could not be loaded.")
-        logger.error("  Reason: %s", e, exc_info=True)
-        logger.error("=" * 60)
 
     yield  # Server runs here
 
