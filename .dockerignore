@@ -1,0 +1,51 @@
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Python cache
+**/__pycache__/
+*.py[cod]
+*$py.class
+
+# IDE / config
+.pytest_cache/
+.vscode/
+.idea/
+.git/
+
+# Environment files (secrets — set via Cloud Run env vars instead)
+.env
+.env*.local
+
+# System files
+.DS_Store
+Thumbs.db
+
+# HuggingFace local cache (will be rebuilt inside the container)
+.hf_cache/
+
+# ── Exclude experiment directories NOT used by the API ──
+# The API only uses HKG+PC+RL/Employment_Labour/
+# Exclude all other experiment variants to keep the Docker image small
+KG+RL/
+PC+RL/
+HKG+PC+RL/criminal/
+HKG+PC+RL/family/
+
+# Exclude training scripts and result files from the deployed mode dirs
+HKG+PC+RL/Employment_Labour/*/train_*.py
+HKG+PC+RL/Employment_Labour/*/build_ground_truth.py
+HKG+PC+RL/Employment_Labour/*/infer_lsim.py
+HKG+PC+RL/Employment_Labour/*/result.png
+HKG+PC+RL/Employment_Labour/*/results.csv
+HKG+PC+RL/Employment_Labour/*/ground_truth_rl_dataset.csv
+HKG+PC+RL/Employment_Labour/*/rl_training_data.csv
+HKG+PC+RL/Employment_Labour/*/rl_training_log.csv
+HKG+PC+RL/Employment_Labour/*/dssm_v3_training_log.csv
+HKG+PC+RL/Employment_Labour/*/graph.json
+HKG+PC+RL/Employment_Labour/*/graph_edgelist.txt
+
+# Exclude tests from production image
+tests/

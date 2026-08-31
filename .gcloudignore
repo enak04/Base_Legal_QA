@@ -1,0 +1,49 @@
+# .gcloudignore — prevents gcloud from uploading heavy caches and unused dirs
+.gcloudignore
+.git
+.gitignore
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Python cache
+**/__pycache__/
+*.py[cod]
+*$py.class
+
+# IDE / config
+.pytest_cache/
+.vscode/
+.idea/
+
+# Environment files
+.env
+.env*.local
+
+# Heavy Hugging Face local cache (rebuilt in cloud)
+.hf_cache/
+
+# Unused experiment folders
+KG+RL/
+PC+RL/
+HKG+PC+RL/criminal/
+HKG+PC+RL/family/
+
+# Exclude training scripts and temp outputs from deployed dir
+HKG+PC+RL/Employment_Labour/*/train_*.py
+HKG+PC+RL/Employment_Labour/*/build_ground_truth.py
+HKG+PC+RL/Employment_Labour/*/infer_lsim.py
+HKG+PC+RL/Employment_Labour/*/result.png
+HKG+PC+RL/Employment_Labour/*/results.csv
+HKG+PC+RL/Employment_Labour/*/ground_truth_rl_dataset.csv
+HKG+PC+RL/Employment_Labour/*/rl_training_data.csv
+HKG+PC+RL/Employment_Labour/*/rl_training_log.csv
+HKG+PC+RL/Employment_Labour/*/dssm_v3_training_log.csv
+HKG+PC+RL/Employment_Labour/*/graph.json
+HKG+PC+RL/Employment_Labour/*/graph_edgelist.txt
+
+# Tests
+tests/

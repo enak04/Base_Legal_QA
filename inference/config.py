@@ -102,7 +102,7 @@ def get_required_files() -> list[dict]:
         },
         {
             "path": INFERENCE_CONFIG["kg_path"],
-            "name": "edges.csv",
+            "name": "Labour_Hkg_graph.pkl",
             "description": "Hierarchical Knowledge Graph edge list",
         },
         {
