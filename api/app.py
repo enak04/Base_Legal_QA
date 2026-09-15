@@ -253,6 +253,7 @@ async def predict(request: PredictRequest):
 
     # ── Get or load the requested engine mode ───────────────────────────
     mode = request.mode
+    logger.info("📩 Incoming Query [Mode: %s]: %s", mode, question)
     try:
         engine = get_engine_for_mode(mode)
     except Exception as e:
@@ -265,6 +266,8 @@ async def predict(request: PredictRequest):
     # ── Run inference (offloaded to threadpool to keep event loop responsive) ───
     try:
         result = await asyncio.to_thread(engine.predict, question)
+        chain_summary = " -> ".join(result.get("reasoning_chain", []))
+        logger.info("✅ Query Completed [Mode: %s] | Chain: %s", mode, chain_summary)
     except Exception as e:
         logger.error("Inference failed for question: %s", question, exc_info=True)
 
