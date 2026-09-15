@@ -24,3 +24,9 @@ Thumbs.db
 
 # HuggingFace local cache
 .hf_cache/
+
+# Local test benchmark scripts & output CSVs
+test_batch_runner.py
+*benchmark*.csv
+*test_results*.csv
+benchmark_results/

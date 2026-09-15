@@ -38,22 +38,22 @@ CONFIG = {
     "kg_path":              "edges.csv",
     # ── retrieval ──────────────────────────────────────────────────────────
     "top_k":                3,          # final context QA pairs
-    "dssm_candidate_k":     20,         # DSSM fetch before re-rank
+    "dssm_candidate_k":     5,          # DSSM fetch before re-rank
     "use_cross_encoder_rerank": True,   # cross-encoder re-rank stage
     "use_bm25_fallback":    True,       # BM25 union fallback
     "mmr_lambda":           0.6,        # MMR diversity weight
     # ── RL inference ──────────────────────────────────────────────────────
-    "rl_test_steps":        4,          # more steps → richer chain
+    "rl_test_steps":        2,          # RL chain extension steps
     "use_chain_query_expand": True,     # append chain terms to query text
     # ── LLM ────────────────────────────────────────────────────────────────
-    "llm_backend":          "openai",     # groq | openai | ollama | hflocal
+    "llm_backend":          os.environ.get("LLM_BACKEND", "openai"),     # groq | openai | ollama | hflocal
     "groq_api_key":         os.environ.get("GROQ_API_KEY", ""),
-    "groq_model":           "llama-3.3-70b-versatile",
+    "groq_model":           os.environ.get("GROQ_MODEL", "llama-3.3-70b-versatile"),
     "openai_api_key":       os.environ.get("OPENAI_API_KEY", ""),
-    "openai_model":         "gpt-4o",       #"gpt-5.4-mini",            #"gpt-4o",        #Line 62   # LIne 449
-    "ollama_model":         "llama3",
-    "ollama_url":           "http://localhost:11434/api/generate",
-    "hf_model":             "microsoft/phi-2",
+    "openai_model":         os.environ.get("OPENAI_MODEL", "gpt-4o-mini"),
+    "ollama_model":         os.environ.get("OLLAMA_MODEL", "llama3"),
+    "ollama_url":           os.environ.get("OLLAMA_URL", "http://localhost:11434/api/generate"),
+    "hf_model":             os.environ.get("HF_MODEL", "microsoft/phi-2"),
     "temperature":          0.4,        # lower → more faithful
     "top_p":                0.9,
     "max_new_tokens":       512,
@@ -287,15 +287,20 @@ def cross_encoder_rerank(question, chain_nodes, candidates_with_scores,
     q_emb  = encode_text(q_text, tok, bert, device, max_len=128).squeeze(0)
     q_norm = F.normalize(q_emb.unsqueeze(0), dim=1)
 
-    scored = []
+    candidate_texts = [item["question"] for item, _ in candidates_with_scores]
     with torch.no_grad():
-        for item, dssm_score in candidates_with_scores:
-            c_emb  = encode_text(item["question"], tok, bert, device, max_len=128).squeeze(0)
-            c_norm = F.normalize(c_emb.unsqueeze(0), dim=1)
-            sim    = float(torch.mm(q_norm, c_norm.t()).item())
-            # combine DSSM score + cosine re-rank (equal weight)
-            combined = 0.5 * dssm_score + 0.5 * sim
-            scored.append((item, combined))
+        enc = tok(candidate_texts, return_tensors="pt", truncation=True,
+                  max_length=128, padding=True).to(device)
+        c_embs = bert(**enc).last_hidden_state[:, 0, :]
+        c_norms = F.normalize(c_embs, dim=1)
+        sims = torch.mm(q_norm, c_norms.t()).squeeze(0).tolist()
+        if isinstance(sims, float):
+            sims = [sims]
+
+    scored = []
+    for (item, dssm_score), sim in zip(candidates_with_scores, sims):
+        combined = 0.5 * dssm_score + 0.5 * float(sim)
+        scored.append((item, combined))
 
     scored.sort(key=lambda x: x[1], reverse=True)
     return [item for item, _ in scored[:top_k]]
@@ -422,32 +427,46 @@ def postprocess_answer(text):
 # LLM backends
 # ─────────────────────────────────────────────────────────────────────────────
 def call_groq(prompt, config):
-    from groq import Groq
-    client = Groq(api_key=config["groq_api_key"])
-    resp = client.chat.completions.create(
-        model=config["groq_model"],
-        messages=[{"role": "system", "content": SYSTEM_PROMPT},
-                  {"role": "user",   "content": prompt}],
-        temperature=config["temperature"],
-        top_p=config["top_p"],
-        max_tokens=config["max_new_tokens"],
-    )
-    return resp.choices[0].message.content.strip()
+    import requests
+    url = "https://api.groq.com/openai/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {config['groq_api_key']}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "model": config["groq_model"],
+        "messages": [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user",   "content": prompt}
+        ],
+        "temperature": config["temperature"],
+        "top_p": config["top_p"],
+        "max_tokens": config["max_new_tokens"],
+    }
+    resp = requests.post(url, headers=headers, json=payload, timeout=60)
+    resp.raise_for_status()
+    return resp.json()["choices"][0]["message"]["content"].strip()
 
 def call_openai(prompt, config):
-    from openai import OpenAI
-    client = OpenAI(api_key=config["openai_api_key"])
-    resp = client.chat.completions.create(
-        model=config["openai_model"],
-        messages=[{"role": "system", "content": SYSTEM_PROMPT},
-                  {"role": "user",   "content": prompt}],
-        temperature=config["temperature"],
-        top_p=config["top_p"],
-        max_tokens=config["max_new_tokens"],    
-        # max_completion_tokens=config.get("max_completion_tokens",
-        #                       config.get("max_new_tokens", 512)),
-    )
-    return resp.choices[0].message.content.strip()
+    import requests
+    url = "https://api.openai.com/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {config['openai_api_key']}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "model": config["openai_model"],
+        "messages": [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user",   "content": prompt}
+        ],
+        "temperature": config["temperature"],
+        "top_p": config["top_p"],
+        "max_tokens": config["max_new_tokens"],
+    }
+    resp = requests.post(url, headers=headers, json=payload, timeout=60)
+    resp.raise_for_status()
+    return resp.json()["choices"][0]["message"]["content"].strip()
 
 def call_ollama(prompt, config):
     import requests

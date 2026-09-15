@@ -29,9 +29,14 @@ import os
 repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.environ["HF_HOME"] = os.path.join(repo_root, ".hf_cache")
 
+import asyncio
 import copy
 import torch
 from typing import Literal
+
+# Configure PyTorch CPU threading for optimal matrix operations without thread contention
+if not torch.cuda.is_available():
+    torch.set_num_threads(max(1, min(4, os.cpu_count() or 4)))
 
 from inference.config import INFERENCE_CONFIG, get_required_files
 from inference.engine import LegalQAEngine
@@ -75,19 +80,11 @@ shared_bert = None
 def get_engine_for_mode(mode: str) -> LegalQAEngine:
     global shared_tok, shared_bert
 
-    # If the engine is already loaded, return it
+    # If the engine is already loaded, return it immediately from cache
     if mode in engines:
         return engines[mode]
 
-    # Otherwise, unload any other loaded engines to save RAM
-    if engines:
-        logger.info("Unloading existing engine modes to free memory...")
-        engines.clear()
-        gc.collect()
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
-
-    logger.info(f"Loading engine for mode: {mode}...")
+    logger.info(f"Loading and caching engine for mode: {mode}...")
     cfg = make_config_for_mode(mode)
     eng = LegalQAEngine(cfg)
 
@@ -119,15 +116,25 @@ def get_engine_for_mode(mode: str) -> LegalQAEngine:
     engines[mode] = eng
     return eng
 
-# ── Lifespan (model loading at startup) ────────────────────────────────────
+# ── Lifespan (startup pre-warming) ─────────────────────────────────────────
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Lifespan events handler. Models are loaded lazily on the first request to minimize startup RAM."""
-    logger.info("=" * 60)
-    logger.info("  Legal QA API — Started successfully")
-    logger.info("  Models will be loaded lazily on the first /predict request to optimize memory.")
-    logger.info("=" * 60)
+    """Pre-warms all 3 modes on startup so every query is fast with 0s swap delay."""
+    logger.info("=" * 65)
+    logger.info("  Legal QA API — Starting & pre-warming all 3 modes into RAM...")
+    logger.info("=" * 65)
+
+    for mode in ["actionable", "informative", "readable"]:
+        try:
+            logger.info("  → Pre-warming '%s' mode...", mode)
+            get_engine_for_mode(mode)
+        except Exception as e:
+            logger.warning("  ⚠️ Could not pre-warm mode '%s': %s", mode, e)
+
+    logger.info("=" * 65)
+    logger.info("  ✅ All 3 modes pre-warmed & ready for instantaneous inference!")
+    logger.info("=" * 65)
 
     yield  # Server runs here
 
@@ -255,9 +262,9 @@ async def predict(request: PredictRequest):
             detail=f"Mode '{mode}' could not be loaded: {e}",
         )
 
-    # ── Run inference ───────────────────────────────────────────────────
+    # ── Run inference (offloaded to threadpool to keep event loop responsive) ───
     try:
-        result = engine.predict(question)
+        result = await asyncio.to_thread(engine.predict, question)
     except Exception as e:
         logger.error("Inference failed for question: %s", question, exc_info=True)
 

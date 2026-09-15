@@ -44,13 +44,13 @@ INFERENCE_CONFIG = {
 
     # ── retrieval ───────────────────────────────────────────────────────────
     "top_k":                3,
-    "dssm_candidate_k":     20,
-    "use_cross_encoder_rerank": True,
+    "dssm_candidate_k":     5,
+    "use_cross_encoder_rerank": False,
     "use_bm25_fallback":    True,
     "mmr_lambda":           0.6,
 
     # ── RL inference ────────────────────────────────────────────────────────
-    "rl_test_steps":        4,
+    "rl_test_steps":        2,
     "use_chain_query_expand": True,
 
     # ── seed chain discovery (TF-IDF over KG node labels) ───────────────────
@@ -62,13 +62,13 @@ INFERENCE_CONFIG = {
     "groq_api_key":         os.environ.get("GROQ_API_KEY", ""),
     "groq_model":           os.environ.get("GROQ_MODEL", "llama-3.3-70b-versatile"),
     "openai_api_key":       os.environ.get("OPENAI_API_KEY", ""),
-    "openai_model":         os.environ.get("OPENAI_MODEL", "gpt-4o"),
+    "openai_model":         os.environ.get("OPENAI_MODEL", "gpt-4o-mini"),
     "ollama_model":         os.environ.get("OLLAMA_MODEL", "llama3"),
     "ollama_url":           os.environ.get("OLLAMA_URL", "http://localhost:11434/api/generate"),
     "hf_model":             os.environ.get("HF_MODEL", "microsoft/phi-2"),
     "temperature":          0.4,
     "top_p":                0.9,
-    "max_new_tokens":       512,
+    "max_new_tokens":       200,
 
     # ── misc ────────────────────────────────────────────────────────────────
     "bert_model":           "law-ai/InLegalBERT",
