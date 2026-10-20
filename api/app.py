@@ -32,7 +32,7 @@ os.environ["HF_HOME"] = os.path.join(repo_root, ".hf_cache")
 import asyncio
 import copy
 import torch
-from typing import Literal
+from typing import Literal, Optional
 
 # Configure PyTorch CPU threading for optimal matrix operations without thread contention
 if not torch.cuda.is_available():
@@ -183,11 +183,19 @@ class RetrievedCase(BaseModel):
     answer: str
 
 
+class BNSData(BaseModel):
+    discovered_ipcs: list[str] = Field(default_factory=list, description="Legacy IPC sections found in query or context")
+    mapped_bns_sections: list[str] = Field(default_factory=list, description="Corresponding modern BNS provisions mapped")
+    statutory_menu: str = Field("", description="Modern candidate statutory menu provided to LLM")
+    has_ipc_conversion: bool = Field(False, description="Whether legacy IPC sections were detected and converted")
+
+
 class PredictResponse(BaseModel):
     question: str
     answer: str
     reasoning_chain: list[str]
     retrieved_cases: list[RetrievedCase]
+    bns_data: Optional[BNSData] = Field(None, description="IPC to BNS conversion details if applicable")
 
 
 class HealthResponse(BaseModel):

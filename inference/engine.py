@@ -295,6 +295,25 @@ class LegalQAEngine:
             max_chain=config.get("seed_max_chain_len", 4),
         )
 
+        # ── Initialize IPC to BNS statutory transition layer ─────────────────
+        self._enable_bns = config.get("enable_bns_conversion", True)
+        self._bns_converter = None
+        self._node_type_map = {}
+        self._node_desc_map = {}
+        if self._enable_bns:
+            try:
+                from ipc_to_bns.bns_converter import BNSConverter, load_node_metadata
+                logger.info("Initializing BNS statutory transition layer...")
+                self._bns_converter = BNSConverter(config.get("bns_mapping_csv"))
+                self._node_type_map, self._node_desc_map, _ = load_node_metadata(
+                    config.get("nodes_csv_path", "nodes.csv")
+                )
+                self._bns_converter.initialize_embeddings(self._tok, self._bert, self._device)
+                logger.info("BNS statutory transition layer initialized successfully.")
+            except Exception as e:
+                logger.warning("Could not initialize BNSConverter: %s. Falling back to standard prompt.", e)
+                self._bns_converter = None
+
         self._loaded = True
         
         # Clean up temporary tensors created during loading
@@ -312,7 +331,8 @@ class LegalQAEngine:
                 "question": str,
                 "answer": str,
                 "reasoning_chain": list[str],
-                "retrieved_cases": list[{"question": str, "answer": str}]
+                "retrieved_cases": list[{"question": str, "answer": str}],
+                "bns_data": dict (optional, contains discovered IPCs and mapped BNS provisions)
             }
         """
         if not self._loaded:
@@ -354,10 +374,28 @@ class LegalQAEngine:
             self._tok, self._bert,
         )
 
-        # Step 6: Build structured CoT prompt
-        prompt = infer.build_prompt(question, chain_extended, top_k)
+        # Step 6: IPC-to-BNS Statutory Conversion & Modern Prompt Construction
+        # Acts after the pipeline has run and before feeding to the final GPT-4o-mini model.
+        # If any IPC sections are present in question, precedents, or graph, they are converted to BNS.
+        bns_meta = None
+        if self._enable_bns and self._bns_converter is not None:
+            q_emb_norm = F.normalize(q_emb, dim=1) if q_emb is not None else None
+            domain_name = config.get("domain_name", "Employment & Labour Law")
+            bns_meta = self._bns_converter.process_query(
+                question=question,
+                chain_extended=chain_extended,
+                top_k=top_k,
+                G=self._G,
+                node_type_map=self._node_type_map,
+                node_desc_map=self._node_desc_map,
+                domain_name=domain_name,
+                q_emb_norm=q_emb_norm,
+            )
+            prompt = bns_meta["prompt"]
+        else:
+            prompt = infer.build_prompt(question, chain_extended, top_k)
 
-        # Step 7: Call LLM (GPT-4o by default)
+        # Step 7: Call LLM (GPT-4o-mini by default)
         raw_answer = infer.generate_answer(prompt, config)
 
         # Step 8: Post-process answer
@@ -371,9 +409,19 @@ class LegalQAEngine:
                 "answer": case.get("answer", ""),
             })
 
-        return {
+        response = {
             "question": question,
             "answer": answer,
             "reasoning_chain": chain_extended,
             "retrieved_cases": retrieved_cases,
         }
+
+        if bns_meta is not None:
+            response["bns_data"] = {
+                "discovered_ipcs": bns_meta["discovered_ipcs"],
+                "mapped_bns_sections": bns_meta["mapped_bns_sections"],
+                "statutory_menu": bns_meta["statutory_menu"],
+                "has_ipc_conversion": bns_meta["has_ipc_conversion"],
+            }
+
+        return response

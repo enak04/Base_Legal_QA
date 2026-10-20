@@ -1,0 +1,738 @@
+Old_IPC,New_BNS,Subject,Mapping_Type
+47,2(2),"""animal"".",MAPPED
+NONE,2(3),"""child"".",NEW_LAW
+28,2(4),"""Counterfeit"".",MAPPED
+20,2(5),"""Court"".",MAPPED
+46,2(6),"""Death"".",MAPPED
+24,2(7),"""Dishonestly"".",MAPPED
+29and29A,2(8),"""Document"".",MAPPED
+25,2(9),Fraudulently.,MAPPED
+8,2(10),Gender.,MAPPED
+52,2(11),Good faith.,MAPPED
+17,2(12),Government.,MAPPED
+52A,2(13),Harbour.,MAPPED
+44,2(14),Injury.,MAPPED
+43,2(15),Illegal and legally bound to do.,MAPPED
+19,2(16),Judge.,MAPPED
+45,2(17),Life.,MAPPED
+42,2(18),Local law.,MAPPED
+10,2(19),Man.,MAPPED
+49,2(20),Month and year.,MAPPED
+22,2(21),Movable property.,MAPPED
+9,2(22),Number.,MAPPED
+51,2(23),Oath.,MAPPED
+40,2(24),Offence.,MAPPED
+33,2(25),Omission.,MAPPED
+11,2(26),Person.,MAPPED
+12,2(27),Public.,MAPPED
+21,2(28),Public servant.,MAPPED
+26,2(29),Reason to believe.,MAPPED
+41,2(30),Special law.,MAPPED
+30,2(31),Valuable security.,MAPPED
+48,2(32),Vessel.,MAPPED
+39,2(33),Voluntarily.,MAPPED
+31,2(34),Will.,MAPPED
+10,2(35),Woman.,MAPPED
+23,2(36),Wrongful gain.,MAPPED
+23,2(37),Wrongful loss.,MAPPED
+23,2(38),"Gaining wrongfully, losing wrongfully.",MAPPED
+29A,2(39),Words and expressions used but not defined.,MAPPED
+6,3(1),General explanations.,MAPPED
+7,3(2),General explanations- Sense of expression once explained.,MAPPED
+27,3(3),"General explanations- Property in possession of wife, clerk or servant.",MAPPED
+32,3(4),"General explanations-""Words referring to acts include illegal omissions"".",MAPPED
+34,3(5),General explanations- Acts done by several persons in furtherance of common intention.,MAPPED
+35,3(6),General explanations- When such an act is criminal by reason of its being done with a criminal knowledge or intention.,MAPPED
+36,3(7),General explanations- Effect caused partly by act and partly by omission.,MAPPED
+37,3(8),General explanations- Co-operation by doing one of several acts constituting an offence.,MAPPED
+38,3(9),General explanations- Persons concerned in Criminal act may be guilty of different offences.,MAPPED
+53,4,Punishments.,MAPPED
+54&55,5,Commutation of sentence.,MAPPED
+55A,Explanationtosection5,Commutation of sentence.,MAPPED
+57,6,Fractions of terms of punishment.,MAPPED
+60,7,Sentence may be (in certain cases of imprisonment) wholly or partly rigorous or simple.,MAPPED
+63,8(1),"Amount of fine, liability in default of payment of fine, etc.",MAPPED
+64,8(2),Sentence of imprisonment for non- payment of fine.,MAPPED
+65,8(3),"Limit to imprisonment for non- payment of fine, when imprisonment and fine awardable.",MAPPED
+66,8(4),Description of imprisonment for non- payment of fine.,MAPPED
+67,8(5),"Imprisonment for non-payment of fine, when offence punishable with fine only.",MAPPED
+68&69,8(6),Imprisonment to terminate on payment of fine. Termination of imprisonment on payment of proportional part of fine.,MAPPED
+70,8(7),"Fine leviable within six years, or during imprisonment. Death not to discharge property from liability.",MAPPED
+71,9,Limit of punishment of offence made up of several offences.,MAPPED
+72,10,"Punishment of person guilty of one of several offences, the judgment stating that it is doubtful of which.",MAPPED
+73,11,Solitary confinement.,MAPPED
+74,12,Limit of solitary confinement.,MAPPED
+75,13,Enhanced punishment for certain offences after previous conviction.,MAPPED
+76,14,"Act done by a person bound, or by mistake of fact believing himself bound, by law.",MAPPED
+77,15,Act of Judge when acting judicially.,MAPPED
+78,16,Act done pursuant to the judgment or order of Court.,MAPPED
+79,17,"Act done by a person justified, or by mistake of fact believing himself justified, by law.",MAPPED
+80,18,Accident in doing a lawful act.,MAPPED
+81,19,"Act likely to cause harm, but done without criminal intent, and to prevent other harm.",MAPPED
+82,20,Act of a child under seven years of age.,MAPPED
+83,21,Act of a child above seven and under twelve of immature understanding.,MAPPED
+84,22,Act of a person of unsound mind.,MAPPED
+85,23,Act of a person incapable of judgment by reason of intoxication caused against his will.,MAPPED
+86,24,Offence requiring a particular intent or knowledge committed by one who is intoxicated.,MAPPED
+87,25,"Act not intended and not known to be likely to cause death or grievous hurt, done by consent.",MAPPED
+88,26,"Act not intended to cause death, done by consent in good faith for person's benefit.",MAPPED
+89,27,"Act done in good faith for benefit of child or person, by or by consent of guardian.",MAPPED
+90,28,Consent known to be given under fear or misconception.,MAPPED
+91,29,Exclusion of acts which are offences independently of harm caused.,MAPPED
+92,30,Act done in good faith for benefit of a person without consent.,MAPPED
+93,31,Communication made in good faith.,MAPPED
+94,32,Act to which a person is compelled by threats.,MAPPED
+95,33,Act causing slight harm.,MAPPED
+96,34,Things done in private defence.,MAPPED
+97,35,Right of private defence of body and of property.,MAPPED
+98,36,"Right of private defence against the act of a person of unsound mind, etc.",MAPPED
+99,37,Act against which there is no right to private defence Extent to which the right may be exercised.,MAPPED
+100,38,When the right of private defence of property extends to causing death.,MAPPED
+101,39,When such right extends to causing any harm other than death.,MAPPED
+102,40,Commencement and continuance of the right of private defence of the body.,MAPPED
+103,41,When the right of private defence of property extends to causing death.,MAPPED
+104,42,When such right extends to causing any harm other than death.,MAPPED
+105,43,Commencement and continuance of the right of private defence of property.,MAPPED
+106,44,Right of private defence against deadly assault when there is risk of harm to innocent person.,MAPPED
+107,45,Abetment of a thing.,MAPPED
+108,46,Abettor.,MAPPED
+108A,47,Abetment in India of offences outside India.,MAPPED
+NONE,48,Abetment outside India for offence in India.,NEW_LAW
+109,49,Punishment of abetment if act abetted is committed in consequence and where no express provision is made for its punishment.,MAPPED
+110,50,Punishment of abetment if person abetted does act with different intention from that of abettor.,MAPPED
+111,51,Liability of abettor when one act abetted and different act done.,MAPPED
+112,52,Abettor when liable to cumulative punishment for act abetted and for act done.,MAPPED
+113,53,Liability of abettor for an effect caused by the act abetted different from that intended by the abettor.,MAPPED
+114,54,Abettor present when offence committed.,MAPPED
+115,55,Abetment of offence punishable with death or imprisonment for life.,MAPPED
+116,56,Abetment of offence punishable with imprisonment.,MAPPED
+117,57,Abetting commission of offence by the public or by more than ten persons.,MAPPED
+118,58,Concealing design to commit offence punishable with death or imprisonment for life.,MAPPED
+119,59,Public servant concealing design to commit offence which it is his duty to prevent.,MAPPED
+120,60,Concealing design to commit offence punishable with imprisonment.,MAPPED
+120A,61(1),Criminal conspiracy definition.,MAPPED
+120B,61(2),Criminal conspiracy punishment.,MAPPED
+511,62,Punishment for attempting to commit offences punishable with imprisonment for life or other imprisonment.,MAPPED
+375,63,Rape definition.,MAPPED
+376(1)&376(2),64,Punishment for rape.,MAPPED
+376(3),65(1),Punishment for rape in certain cases- rape on a woman under sixteen years.,MAPPED
+376AB,65(2),Punishment for rape in certain cases- rape on a woman under twelve years.,MAPPED
+376A,66,Punishment for causing death or resulting in persistent vegetative state of victim.,MAPPED
+376B,67,Sexual intercourse by husband upon his wife during separation.,MAPPED
+376C,68,Sexual intercourse by a person in authority.,MAPPED
+NONE,69,Sexual intercourse by employing deceitful means etc.,NEW_LAW
+376D,70(1),Gang rape.,MAPPED
+376DB,70(2),Gang rape on women under the age of eighteen.,MAPPED
+376E,71,Punishment for repeat offenders.,MAPPED
+228A(1),72,Disclosure of identity of victim of certain offences etc.,MAPPED
+(2),72,Disclosure of identity of victim of certain offences etc.,MAPPED
+228A(3),73,Printing or publishing any matter relating to court proceedings without permission.,MAPPED
+354,74,Assault or use of criminal force to woman with intent to outrage her modesty.,MAPPED
+354A,75,Sexual harassment.,MAPPED
+354B,76,Assault or use of criminal force to woman with intent disrobe.,MAPPED
+354C,77,Voyeurism.,MAPPED
+354D,78,Stalking.,MAPPED
+509,79,"Word, gesture or act intended to insult the modesty of a woman.",MAPPED
+304B,80,Dowry death.,MAPPED
+493,81,Cohabitation caused by man deceitfully inducing belief of lawful marriage.,MAPPED
+494,82(1),Marrying again during lifetime of husband or wife.,MAPPED
+495,82(2),Marrying again during lifetime of husband or wife with concealment of former marriage from person with whom subsequent marriage is contracted.,MAPPED
+496,83,Marriage ceremony fraudulently gone through without lawful marriage.,MAPPED
+498,84,Enticing or taking away or detaining with criminal intent a married Woman.,MAPPED
+498A,85,Husband or relative of husband of a woman subjecting her to cruelty.,MAPPED
+498A,86,Cruelty defined.,MAPPED
+366,87,"Kidnapping or abducting in order to murder or for ransom, etc.",MAPPED
+312,88,Causing miscarriage.,MAPPED
+313,89,Causing miscarriage without woman’s consent.,MAPPED
+314,90,Death caused by act done with intent to cause miscarriage.,MAPPED
+315,91,Act done with intent to prevent child being born alive or to cause it to die after birth.,MAPPED
+316,92,Causing death of quick unborn child by act amounting to culpable homicide.,MAPPED
+317,93,"Exposure and abandonment of child under twelve years, by parent or person having care of it.",MAPPED
+318,94,Concealment of birth by secret disposal of dead body.,MAPPED
+NONE,95,"Hiring, employing or engaging a child to commit an offence.",NEW_LAW
+366A,96,Procuration of child.,MAPPED
+369,97,Kidnapping or abducting child under ten years with intent to steal from its person.,MAPPED
+372,98,"Selling minor for purposes of prostitution, etc.",MAPPED
+373,99,"Buying minor for purposes of prostitution, etc.",MAPPED
+299,100,Culpable homicide.,MAPPED
+300,101,Murder.,MAPPED
+301,102,Culpable homicide by causing death of person other than person whose death was intended.,MAPPED
+302,103(1),Punishment for murder.,MAPPED
+NONE,103(2),Punishment for murder.,NEW_LAW
+303,104,Punishment for murder by life- convict.,MAPPED
+304,105,Punishment for culpable homicide not amounting to murder.,MAPPED
+304A,106(1),Causing death by negligence.,MAPPED
+NONE,106(2),Causing death by negligence.,NEW_LAW
+305,107,Abetment of suicide of child or person of unsound mind.,MAPPED
+306,108,Abetment of suicide.,MAPPED
+307,109,Attempt to murder.,MAPPED
+308,110,Attempt to commit culpable homicide.,MAPPED
+NONE,111,Organized crime.,NEW_LAW
+NONE,112,Petty organized crime.,NEW_LAW
+NONE,113,Terrorist act.,NEW_LAW
+319,114,Hurt.,MAPPED
+321,115(1),Voluntarily causing hurt.,MAPPED
+323,115(2),Punishment for voluntarily causing hurt.,MAPPED
+320,116,Grievous hurt definition.,MAPPED
+322,117(1),Voluntarily causing grievous hurt punishment.,MAPPED
+325,117(2),Punishment for voluntarily causing grievous hurt.,MAPPED
+NONE,117(3),Voluntarily causing grievous hurt.,NEW_LAW
+NONE,117(4),Voluntarily causing grievous hurt.,NEW_LAW
+324,118(1),Voluntarily causing hurt or grievous hurt by dangerous weapons or means.,MAPPED
+326,118(2),Voluntarily causing hurt or grievous hurt by dangerous weapons or means.,MAPPED
+327,119(1),"Voluntarily causing hurt or grievous hurt to extort property, or to constrain to an illegal act.",MAPPED
+329,119(2),"Voluntarily causing hurt or grievous hurt to extort property, or to constrain to an illegal act.",MAPPED
+330,120(1),Voluntarily causing hurt or grievous hurt to extort confession or to compel restoration of property.,MAPPED
+331,120(2),"Voluntarily causing grievous hurt to extort confession, or to compel restoration of property.",MAPPED
+332,121(1),Voluntarily causing hurt to deter public servant from his duty.,MAPPED
+333,121(2),Voluntarily causing grievous hurt to deter public servant from his duty.,MAPPED
+334,122(1),Voluntarily causing provocation hurt on.,MAPPED
+335,122(2),Voluntarily causing grievous hurt on provocation.,MAPPED
+328,123,Causing harm by means of poison etc with intent to commit an offence.,MAPPED
+326A,124(1),Voluntarily causing grievous hurt by use of acid etc.,MAPPED
+326B,124(2),Voluntarily causing grievous hurt by throwing or attempting to throw acid.,MAPPED
+336,125,Act endangering life or personal safety of others.,MAPPED
+337,125(a),Where hurt is caused.,MAPPED
+338,125(b),Where grievous hurt is caused.,MAPPED
+339,126(1),Wrongful restraint.,MAPPED
+341,126(2),Punishment for Wrongful restraint.,MAPPED
+340,127(1),Wrongful confinement.,MAPPED
+342,127(2),Punishment for Wrongful confinement.,MAPPED
+343,127(3),Wrongful confinement for three or more days.,MAPPED
+344,127(4),Wrongful confinement for ten or more days.,MAPPED
+345,127(5),Wrongful confinement of person for whose liberation writ has been issued.,MAPPED
+346,127(6),Wrongful confinement in secret.,MAPPED
+347,127(7),"Wrongful confinement to extort property, or constrain to illegal act.",MAPPED
+348,127(8),"Wrongful confinement to extort confession, or compel restoration of property.",MAPPED
+349,128,Force.,MAPPED
+350,129,Criminal force.,MAPPED
+351,130,Assault.,MAPPED
+352,131,Punishment for assault or criminal force otherwise than on grave provocation.,MAPPED
+353,132,Assault or criminal force to deter public servant from discharge of his duty.,MAPPED
+355,133,"Assault or criminal force with intent to dishonour person, otherwise than on grave provocation.",MAPPED
+356,134,Assault or criminal force in attempt to commit theft of property carried by a person.,MAPPED
+357,135,Assault or criminal force in attempt to wrongfully confine a person.,MAPPED
+358,136,Assault or criminal force on grave provocation.,MAPPED
+359,137(1),Kidnapping.,MAPPED
+360,137(1)(a),Kidnapping from India.,MAPPED
+361,137(1)(b),Kidnapping from lawful guardianship.,MAPPED
+363,137(2),Punishment for kidnapping.,MAPPED
+362,138,Abduction.,MAPPED
+363A,139,Kidnapping or maiming a child for purposes of begging.,MAPPED
+364,140(1),"Kidnapping or abducting in order to murder, etc.",MAPPED
+364A,140(2),"Kidnapping for ransom, etc.",MAPPED
+365,140(3),Kidnapping or abducting with intent secretly and wrongfully to confine person.,MAPPED
+367,140(4),"Kidnapping or abducting in order to subject person to grievous hurt, slavery, etc.",MAPPED
+366B,141,Importation of girl or boy from foreign country.,MAPPED
+368,142,"Wrongfully concealing or keeping in confinement, kidnapped or abducted person.",MAPPED
+370,143,Trafficking of person.,MAPPED
+370A,144,Exploitation of a trafficked person.,MAPPED
+371,145,Habitual dealing in slaves.,MAPPED
+374,146,Unlawful compulsory labour.,MAPPED
+121,147,"Waging, or attempting to wage war. or abetting waging of war, against the Government of India.",MAPPED
+121A,148,Conspiracy to commit offences punishable by Section 147.,MAPPED
+122,149,"Collecting arms, etc., with intention of waging war against the Government of India.",MAPPED
+123,150,Concealing with intent to facilitate design to wage war.,MAPPED
+124,151,"Assaulting President, Governor, etc., with intent to compel or restrain the exercise of any lawful power.",MAPPED
+NONE,152,"Act endangering sovereignty, unity and integrity of India.",NEW_LAW
+125,153,Waging war against Government of any Foreign State at peace with Government of India.,MAPPED
+126,154,Committing depredation on territories of Foreign State at peace with Government of India.,MAPPED
+127,155,Receiving property taken by war or depredation mentioned in Sections 153 and 154.,MAPPED
+128,156,Public servant voluntarily allowing prisoner of State or war to escape.,MAPPED
+129,157,Public servant negligently suffering such prisoner to escape.,MAPPED
+130,158,"Aiding escape of, rescuing or harbouring such prisoner.",MAPPED
+131,159,"Abetting mutiny, attempting to seduce a soldier, sailor or airman from his duty.",MAPPED
+132,160,"Abetment of mutiny, if mutiny is committed in consequence thereof.",MAPPED
+133,161,"Abetment of assault by soldier, sailor or airman on his superior officer, when in execution of his office.",MAPPED
+134,162,"Abetment of such assault, if the assault is committed.",MAPPED
+135,163,"Abetment of desertion of soldier, sailor or airman.",MAPPED
+136,164,Harbouring deserter.,MAPPED
+137,165,"Deserter concealed on board, of master merchant vessel through negligence.",MAPPED
+138,166,"Abetment of act of insubordination by soldier, sailor or airman.",MAPPED
+139,167,Persons subject to certain Acts.,MAPPED
+140,168,"Wearing garb or carrying token used by soldier, sailor or airman.",MAPPED
+171A,169,"Candidate, electoral right defined.",MAPPED
+171B,170,Bribery.,MAPPED
+171C,171,Undue influence at elections.,MAPPED
+171D,172,Personation at elections.,MAPPED
+171E,173,Punishment for bribery.,MAPPED
+171F,174,Punishment for undue influence or personation at an election.,MAPPED
+171G,175,False statement in connection with an election.,MAPPED
+171H,176,Illegal payment in connection with an election.,MAPPED
+171-I,177,Failure to keep election accounts.,MAPPED
+230,178,"Counterfeiting coin, Government stamps, currency- notes or bank- notes.",MAPPED
+231,178,"Counterfeiting coin, Government stamps, currency- notes or bank- notes.",MAPPED
+232,178,"Counterfeiting coin, Government stamps, currency- notes or bank- notes.",MAPPED
+246,178,"Counterfeiting coin, Government stamps, currency- notes or bank- notes.",MAPPED
+247,178,"Counterfeiting coin, Government stamps, currency- notes or bank- notes.",MAPPED
+248,178,"Counterfeiting coin, Government stamps, currency- notes or bank- notes.",MAPPED
+249,178,"Counterfeiting coin, Government stamps, currency- notes or bank- notes.",MAPPED
+255,178,"Counterfeiting coin, Government stamps, currency- notes or bank- notes.",MAPPED
+489A,178,"Counterfeiting coin, Government stamps, currency- notes or bank- notes.",MAPPED
+237,179,"Using as genuine, forged or counterfeit coin, Government stamp, currency-notes or bank-notes.",MAPPED
+238,179,"Using as genuine, forged or counterfeit coin, Government stamp, currency-notes or bank-notes.",MAPPED
+239,179,"Using as genuine, forged or counterfeit coin, Government stamp, currency-notes or bank-notes.",MAPPED
+240,179,"Using as genuine, forged or counterfeit coin, Government stamp, currency-notes or bank-notes.",MAPPED
+241,179,"Using as genuine, forged or counterfeit coin, Government stamp, currency-notes or bank-notes.",MAPPED
+250,179,"Using as genuine, forged or counterfeit coin, Government stamp, currency-notes or bank-notes.",MAPPED
+251,179,"Using as genuine, forged or counterfeit coin, Government stamp, currency-notes or bank-notes.",MAPPED
+254,179,"Using as genuine, forged or counterfeit coin, Government stamp, currency-notes or bank-notes.",MAPPED
+258,179,"Using as genuine, forged or counterfeit coin, Government stamp, currency-notes or bank-notes.",MAPPED
+260,179,"Using as genuine, forged or counterfeit coin, Government stamp, currency-notes or bank-notes.",MAPPED
+489B,179,"Using as genuine, forged or counterfeit coin, Government stamp, currency-notes or bank-notes.",MAPPED
+242,180,"Possession of forged or counterfeit coin, Government stamp, currency- notes or bank-notes.",MAPPED
+243,180,"Possession of forged or counterfeit coin, Government stamp, currency- notes or bank-notes.",MAPPED
+252,180,"Possession of forged or counterfeit coin, Government stamp, currency- notes or bank-notes.",MAPPED
+253,180,"Possession of forged or counterfeit coin, Government stamp, currency- notes or bank-notes.",MAPPED
+259,180,"Possession of forged or counterfeit coin, Government stamp, currency- notes or bank-notes.",MAPPED
+489C,180,"Possession of forged or counterfeit coin, Government stamp, currency- notes or bank-notes.",MAPPED
+233,181,"Making or possessing instruments or materials for forging or counterfeiting coin, govt stamps, currency notes or bank notes.",MAPPED
+234,181,"Making or possessing instruments or materials for forging or counterfeiting coin, govt stamps, currency notes or bank notes.",MAPPED
+235,181,"Making or possessing instruments or materials for forging or counterfeiting coin, govt stamps, currency notes or bank notes.",MAPPED
+256,181,"Making or possessing instruments or materials for forging or counterfeiting coin, govt stamps, currency notes or bank notes.",MAPPED
+257,181,"Making or possessing instruments or materials for forging or counterfeiting coin, govt stamps, currency notes or bank notes.",MAPPED
+489D,181,"Making or possessing instruments or materials for forging or counterfeiting coin, govt stamps, currency notes or bank notes.",MAPPED
+489E,182,Making or using documents resembling currency-notes or bank- notes.,MAPPED
+261,183,"Effacing, writing from substance bearing Government stamp, removing from document a stamp used for it, with intent to cause loss to Government.",MAPPED
+262,184,Using Government stamp known to have been before used.,MAPPED
+263,185,Erasure of mark denoting that stamp has been used.,MAPPED
+263A,186,Prohibition of fictitious stamps.,MAPPED
+244,187,Person employed in mint causing coin to be of different weight or composition from that fixed by law.,MAPPED
+245,188,Unlawfully taking coining instrument from mint.,MAPPED
+141,189(1),Unlawful assembly.,MAPPED
+142,189(2),Unlawful assembly- Being member of unlawful assembly.,MAPPED
+145,189(3),"Unlawful assembly- Joining or continuing in unlawful assembly, knowing it has been commanded to disperse.",MAPPED
+144,189(4),Unlawful assembly- Joining unlawful assembly armed with deadly weapon.—,MAPPED
+151,189(5),Unlawful assembly- Knowingly joining or continuing in assembly of five or more persons after it has been commanded to disperse.—,MAPPED
+150,189(6),"Unlawful assembly- Hiring, or conniving at hiring, of persons to join unlawful assembly.",MAPPED
+157,189(7),Unlawful assembly- Harbouring persons hired for an unlawful assembly.,MAPPED
+158,189(8)/(9),Unlawful assembly- Being hired to take part in an unlawful assembly or riot. Or to go armed.,MAPPED
+149,190,Every member of unlawful assembly guilty of offence committed in prosecution of common object.,MAPPED
+146,191(1),Rioting-Offence defined.,MAPPED
+147,191(2),Rioting- Punishment for rioting.,MAPPED
+148,191(3),Rioting- Being armed with deadly weapon.—,MAPPED
+153,192,Wantonly giving provocation with intent to cause riot if rioting be committed if not committed.,MAPPED
+154,193(1),"Liability of owner, occupier, etc., of land on which an unlawful assembly or riot takes place.",MAPPED
+155,193(2),Liability of person for whose benefit riot is committed.,MAPPED
+156,193(3),Liability of agent of owner or occupier for whose benefit riot is committed.,MAPPED
+159,194(1),Affray- defined.,MAPPED
+160,194(2),Punishment for Affray.,MAPPED
+152,195(1),"Assaulting or obstructing public servant when suppressing riot, etc.",MAPPED
+152,195(2),"Assaulting or obstructing public servant when suppressing riot, etc.",MAPPED
+153A,196,"Promoting enmity between different groups on grounds of religion, race, place of birth, residence, language, etc., and doing acts prejudicial to maintenance of harmony.",MAPPED
+153B,197,"Imputations, assertions prejudicial to national integration.",MAPPED
+NONE,197(1)d,"Makes or publishes false or misleading information, jeopardising the sovereignty, unity and integrity or security of India.",NEW_LAW
+166,198,"Public servant disobeying law, with intent to cause injury to any person.",MAPPED
+166A,199,Public servant disobeying direction under law.,MAPPED
+166B,200,Punishment for non-treatment of victim.,MAPPED
+167,201,Public servant framing an incorrect document with intent to cause injury.,MAPPED
+168,202,Public servant unlawfully engaging in trade.,MAPPED
+169,203,Public servant unlawfully buying or bidding for property.,MAPPED
+170,204,Personating a public servant.,MAPPED
+171,205,Wearing garb or carrying token used by public servant with fraudulent intent.,MAPPED
+172,206,Absconding to avoid service of summons or other proceeding.,MAPPED
+173,207,"Preventing service of summons or other proceeding, or preventing publication thereof.",MAPPED
+174,208,Non-attendance in obedience to an order from public servant.,MAPPED
+174A,209,"Non-appearance in response to a proclamation under section 84 of Bharatiya Nagarik Suraksha Sanhita,2023.",MAPPED
+175,210,"Omission to produce document or electronic record to public servant by person, legally bound to produce it.",MAPPED
+176,211,Omission to give notice or information to public servant by person legally bound to give it.,MAPPED
+177,212,Furnishing false information.,MAPPED
+178,213,Refusing oath or affirmation when duly required by public servant to make it.,MAPPED
+179,214,Refusing to answer public servant authorised to question.,MAPPED
+180,215,Refusing to sign statement.,MAPPED
+181,216,False statement on oath or affirmation to public servant or person authorised to administer an oath or affirmation.,MAPPED
+182,217,"False information, with intent to cause public servant to use his lawful power to the injury of another person.",MAPPED
+183,218,Resistance to the taking of property by the lawful authority of a public servant.,MAPPED
+184,219,Obstructing sale of property offered by authority of public servant for sale.,MAPPED
+185,220,Illegal purchase or bid for property offered for sale by authority of public servant.,MAPPED
+186,221,Obstructing public servant in discharge of public functions.,MAPPED
+187,222,Omission to assist public servant when bound by law to give assistance.,MAPPED
+188,223,Disobedience to order duly promulgated by public servant.,MAPPED
+189,224,Threat of injury to public servant.,MAPPED
+190,225,Threat of injury to induce person to refrain from applying for protection.,MAPPED
+NONE,226,Attempt to commit suicide to compel or restrain from applying or restrain of lawful power.,NEW_LAW
+191,227,Giving false evidence.,MAPPED
+192,228,Fabricating false evidence.,MAPPED
+193,229,Punishment for false evidence.,MAPPED
+194,230,Giving or fabricating false evidence with intent to procure conviction of capital offence.,MAPPED
+195,231,Giving or fabricating false evidence with intent to procure conviction of offence punishable with imprisonment for life or imprisonment.,MAPPED
+195A,232,Threatening any person to give false evidence.,MAPPED
+196,233,Using evidence known to be false.,MAPPED
+197,234,Issuing or signing false certificate.,MAPPED
+198,235,Using as true a certificate known to be false.,MAPPED
+199,236,False statement made in declaration which is by law receivable as evidence.,MAPPED
+200,237,Using as true such declaration knowing it to be false.,MAPPED
+201,238,"Causing disappearance of evidence ,or giving false information to screen offender.",MAPPED
+202,239,Intentional omission to give information of offence by person bound to inform.,MAPPED
+203,240,Giving false information respecting an offence committed.,MAPPED
+204,241,Destruction of document or electronic record to prevent its production as evidence.,MAPPED
+205,242,False personation for purpose of act or proceeding in suit or prosecution.,MAPPED
+206,243,Fraudulent removal or concealment of property to prevent its seizure as forfeited or in execution.,MAPPED
+207,244,Fraudulent claim to property to prevent its seizure as forfeited or in execution.,MAPPED
+208,245,Fraudulently suffering decree for sum not due.,MAPPED
+209,246,Dishonestly making false claim in Court.,MAPPED
+210,247,Fraudulently obtaining decree for sum not due.,MAPPED
+211,248,False charge of offence made with intent to injure.,MAPPED
+212,249,Harbouring offender.,MAPPED
+213,250,"Taking gift, etc., to screen an offender from punishment.",MAPPED
+214,251,Offering gift or restoration of property in consideration of screening offender.,MAPPED
+215,252,"Taking gift to help to recover stolen property, etc.",MAPPED
+216,253,Harbouring offender who has escaped from custody or whose apprehension has been ordered.,MAPPED
+216A,254,Penalty for harbouring robbers or dacoits.,MAPPED
+217,255,Public servant disobeying direction of law with intent to save person from punishment or property from forfeiture.,MAPPED
+218,256,Public servant framing incorrect record or writing with intent to save person from punishment or property from forfeiture.,MAPPED
+219,257,"Public servant in judicial proceeding corruptly making report, etc. contrary to law.",MAPPED
+220,258,Commitment for trial or confinement by person having authority who knows that he is acting contrary to law.,MAPPED
+221,259,Intentional omission to apprehend on part of public servant bound to apprehend.,MAPPED
+222,260,Intentional omission to apprehend on part of public servant bound to apprehend person under sentence or lawfully committed.,MAPPED
+223,261,Escape from confinement or custody negligently suffered by public servant.,MAPPED
+224,262,Resistance or obstruction by a person to his lawful apprehension.,MAPPED
+225,263,Resistance or obstruction to lawful apprehension of another person.,MAPPED
+225A,264,"Omission to apprehend, or sufferance of escape, on part of public servant, in cases not otherwise provided for.",MAPPED
+225B,265,Resistance or obstruction to lawful apprehension or escape or rescue in cases not otherwise provided for.,MAPPED
+227,266,Violation of condition of remission of punishment.,MAPPED
+228,267,Intentional insult or interruption to public servant sitting in judicial proceeding.,MAPPED
+229,268,Personation of assessor.,MAPPED
+229A,269,Failure by person released on bail or bond to appear in Court.,MAPPED
+268,270,Public nuisance.,MAPPED
+269,271,Negligent act likely to spread infection of disease dangerous to life.,MAPPED
+270,272,Malignant act likely to spread infection of disease dangerous to life.,MAPPED
+271,273,Disobedience to quarantine rule.,MAPPED
+272,274,Adulteration of food or drink intended for sale.,MAPPED
+273,275,Sale of noxious food or drink.,MAPPED
+274,276,Adulteration of drugs.,MAPPED
+275,277,Sale of adulterated drugs.,MAPPED
+276,278,Sale of drug as a different drug or preparation.,MAPPED
+277,279,Fouling water of public spring or reservoir.,MAPPED
+278,280,Making atmosphere noxious to health.,MAPPED
+279,281,Rash driving or riding on a public way.,MAPPED
+280,282,Rash navigation of vessel.,MAPPED
+281,283,"Exhibition of false light, mark or buoy.",MAPPED
+282,284,Conveying person by water for hire in unsafe or overloaded vessel.,MAPPED
+283,285,Danger or obstruction in public way or line of navigation.,MAPPED
+284,286,Negligent conduct with respect to poisonous substance.,MAPPED
+285,287,Negligent conduct with respect to fire or combustible matter.,MAPPED
+286,288,Negligent conduct with respect to explosive substance.,MAPPED
+287,289,Negligent conduct with respect to machinery.,MAPPED
+288,290,"Negligent conduct with respect to pulling down, repairing or constructing buildings, etc.",MAPPED
+289,291,Negligent conduct with respect to animal.,MAPPED
+290,292,Punishment for public nuisance in cases not otherwise provided for.,MAPPED
+291,293,Continuance of nuisance after injunction to discontinue.,MAPPED
+292,294,"Sale, etc., of obscene books, etc.",MAPPED
+293,295,"Sale, etc., of obscene objects to young person.",MAPPED
+294,296,Obscene acts and songs.,MAPPED
+294A,297,Keeping lottery office.,MAPPED
+295,298,Injuring or defiling place of worship with intent to insult the religion of any class.,MAPPED
+295A,299,"Deliberate and malicious acts intended to outrage religious feelings of any class, by insulting its religion or religious beliefs.",MAPPED
+296,300,Disturbing religious assembly.,MAPPED
+297,301,"Trespassing on burial places, etc.",MAPPED
+298,302,"Uttering words, etc., with deliberate intent to wound the religious feelings of any person.",MAPPED
+378,303(1),Theft.,MAPPED
+379,303(2),Punishment for theft.,MAPPED
+NONE,304,Snatching.,NEW_LAW
+380,305,"Theft in a dwelling house, or means of transportation or place of worship, etc.",MAPPED
+381,306,Theft by clerk or servant of property in possession of master.,MAPPED
+382,307,"Theft after preparation made for causing death, hurt or restraint in order to committing of theft.",MAPPED
+383,308(1),Extortion.,MAPPED
+384,308(2),Extortion punishment.,MAPPED
+385,308(3),Putting person in fear of injury in order to commit extortion.,MAPPED
+387,308(4),"Putting person in fear of death or of grievous hurt, in order to commit extortion.",MAPPED
+386,308(5),Extortion by putting a person in fear of death or grievous hurt.,MAPPED
+388,308(6),"Extortion by threat of accusation of an offence punishable with death or imprisonment for life, etc.",MAPPED
+389,308(7),"Putting person in fear or accusation of offence, in order to commit extortion.",MAPPED
+390,"309(1),(2),(3)",Robbery- When theft is robbery When extortion is robbery.,MAPPED
+392,309(4),Robbery- Punishment for robbery.,MAPPED
+393,309(5),Robbery- Attempt to commit robbery.,MAPPED
+394,309(6),Robbery- Voluntarily causing hurt in committing robbery.,MAPPED
+391,310(1),Dacoity definition.,MAPPED
+395,310(2),Dacoity punishment .,MAPPED
+396,310(3),Dacoity with murder.,MAPPED
+399,310(4),Making preparation to commit dacoity.,MAPPED
+402,310(5),Assembling for purpose of committing dacoity.,MAPPED
+400,310(6),Punishment for belonging to gang of dacoits.,MAPPED
+397,311,"Robbery or dacoity, with attempt to cause death or grievous hurt.",MAPPED
+398,312,Attempt to commit robbery or dacoity when armed with deadly weapon.,MAPPED
+401,313,"Punishment for belonging to gang of robbers, etc.",MAPPED
+403,314,Dishonest misappropriation of property.,MAPPED
+404,315,Dishonest misappropriation of property possessed by deceased person at the time of his death.,MAPPED
+405,316(1),Criminal breach of trust.,MAPPED
+406,316(2),Punishment for criminal breach of trust.,MAPPED
+407,316(3),"Criminal breach of trust by carrier, etc.",MAPPED
+408,316(4),Criminal breach of trust by clerk or servant.,MAPPED
+409,316(5),"Criminal breach of trust by public servant, or by banker, merchant or agent.",MAPPED
+410,317(1),Stolen property.,MAPPED
+411,317(2),Dishonestly receiving stolen property.,MAPPED
+412,317(3),Dishonestly receiving property stolen in the commission of a dacoity.,MAPPED
+413,317(4),Habitually dealing in stolen property.,MAPPED
+414,317(5),Assisting in concealment of stolen property.,MAPPED
+415,318(1),Cheating.,MAPPED
+417,318(2),Cheating punishment.,MAPPED
+418,318(3),Cheating with knowledge that wrongful loss may ensue to person whose interest offender is bound to protect.,MAPPED
+420,318(4),Cheating and dishonestly inducing delivery of property.,MAPPED
+416,319(1),Cheating by personation.,MAPPED
+419,319(2),Cheating by personation punishment.,MAPPED
+421,320,Dishonest or fraudulent removal or concealment of property to prevent distribution among creditors.,MAPPED
+422,321,Dishonestly or fraudulently preventing debt being available for creditors.,MAPPED
+423,322,Dishonest or fraudulent execution of deed of transfer containing false statement of consideration.,MAPPED
+424,323,Dishonest or fraudulent removal or concealment of property.,MAPPED
+425,324(1),Mischief.,MAPPED
+426,324(2),Mischief punishment.,MAPPED
+NONE,324(3),Mischief - causes loss or damage to any property including the property of Government or Local Authority.,NEW_LAW
+427,324(4),Mischief causing damage to the amount of twenty thousand rupees and more but less than one lakh rupees.,MAPPED
+NONE,324(5),Mischief- cause loss or damage to amount of one lakh rupees onwards.,NEW_LAW
+440,324(6),Mischief committed after preparation made for causing death or hurt.,MAPPED
+428,325,Mischief by killing or maiming animal.,MAPPED
+429,325,Mischief by killing or maiming animal.,MAPPED
+430,326(a),"Mischief by injury, inundation, fire or explosive substance, etc.",MAPPED
+431,326(b),"Mischief by injury to public road, bridge, river or channel.",MAPPED
+432,326(c),Mischief by causing inundation or obstruction to public drainage attended with damage.,MAPPED
+433,326(d),"Mischief by injury, inundation, fire or explosive substance, etc.",MAPPED
+434,326(e),"Mischief by destroying or moving, etc., a land-mark fixed by public authority.",MAPPED
+435,326(f),"Mischief by injury, inundation, fire or explosive substance, etc.",MAPPED
+436,326(g),"Mischief by fire or explosive substance with intent to destroy house, etc.",MAPPED
+437,327(1),"Mischief with intent to destroy or make unsafe a rail, aircraft, decked vessel or one of twenty tons burden.",MAPPED
+438,327(2),Punishment for above offence.,MAPPED
+439,328,"Punishment for intentionally running vessel aground or ashore with intent to commit theft, etc.",MAPPED
+441,329(1),Criminal trespass and house- trespass.,MAPPED
+442,329(2),Criminal trespass and house- trespass.,MAPPED
+447,329(3),Criminal trespass punishment.,MAPPED
+448,329(4),Punishment for house- trespass.,MAPPED
+443,330(1),Lurking house trespass.,MAPPED
+445,330(2),House breaking.,MAPPED
+453,331(1),Punishment for house- trespass or house-breaking.,MAPPED
+456,331(2),Punishment for lurking house-trespass or house-breaking by night.,MAPPED
+454,331(3),Lurking house-trespass or house- breaking in order to commit offence punishable with imprisonment.,MAPPED
+457,331(4),Lurking house-trespass or house- breaking by night in order to commit offence punishable with imprisonment.,MAPPED
+455,331(5),"Lurking house-trespass or house- breaking after preparation for hurt, assault or wrongful restraint.",MAPPED
+458,331(6),"Lurking house-trespass or house- breaking by night after preparation for hurt, assault, or wrongful restraint.",MAPPED
+459,331(7),Grievous hurt caused whilst committing lurking house-trespass or house-breaking.,MAPPED
+460,331(8),All persons jointly concerned in lurking house-trespass or house- breaking by night punishable where death or grievous hurt caused by one of them.,MAPPED
+449,332(a),House-trespass in order to commit offence punishable with death.,MAPPED
+450,332(b),House-trespass in order to commit offence punishable with imprisonment for life.,MAPPED
+451,332(c),House-trespass in order to commit offence punishable with imprisonment.,MAPPED
+452,333,"House-trespass after preparation for hurt, assault or wrongful restraint.",MAPPED
+461,334(1),Dishonestly breaking open receptacle containing property.,MAPPED
+462,334(2),Punishment for same offence when committed by person entrusted with custody.,MAPPED
+464,335,Making a false document.,MAPPED
+463,336(1),Forgery.,MAPPED
+465,336(2),Forgery punishment.,MAPPED
+468,336(3),Forgery for purpose of cheating.,MAPPED
+469,336(4),Forgery for purpose of harming reputation.,MAPPED
+466,337,"Forgery of record of Court or of public register, etc.",MAPPED
+467,338,"Forgery of valuable security, will, etc.",MAPPED
+474,339,"Having possession of document described in Section 337 or Section 338, knowing it to be forged and intending to use it as genuine.",MAPPED
+470,340(1),Forged document or electronic record. and using it as genuine.,MAPPED
+471,340(2),Using as genuine a forged document or electronic record.,MAPPED
+472,341(1),"Making or possessing counterfeit seal, etc., with intent to commit forgery, punishable under section 338.",MAPPED
+473,341(2),"Making or possessing counterfeit seal, etc., with intent to commit forgery punishable otherwise.",MAPPED
+NONE,341(3),"Possesses any seal, plate or other instrument knowing the same to be counterfeit.",NEW_LAW
+NONE,341(4),"Fraudulently or dishonestly uses as genuine any seal, plate or other instrument knowing or having reason to believe the same to be counterfeit.",NEW_LAW
+475,342(1),"Counterfeiting device or mark used for authenticating documents described in section 338, or possessing counterfeit marked material.",MAPPED
+476,342(2),"Counterfeiting device or mark used for authenticating documents described in section 338, or possessing counterfeit marked material.",MAPPED
+477,343,"Fraudulent cancellation, destruction, etc. of will, authority to adopt, or valuable security.",MAPPED
+477A,344,Falsification of accounts.,MAPPED
+479,345(1),Property mark.,MAPPED
+481,345(2),Using a false property mark.,MAPPED
+482,345(3),Punishment for using a false property mark.,MAPPED
+489,346,Tampering with property mark with intent to cause injury.,MAPPED
+483,347(1),Counterfeiting a property mark.,MAPPED
+484,347(2),Counterfeiting a mark used by a public servant.,MAPPED
+485,348,Making or possession of any instrument for counterfeiting a property mark.,MAPPED
+486,349,Selling goods marked with counterfeit property mark.,MAPPED
+487,350(1),Making a false mark upon any receptacle containing goods.,MAPPED
+488,350(2),Punishment for making use of any such false mark.,MAPPED
+503,351(1),Criminal intimidation.,MAPPED
+506,351(2)/(3),Criminal intimidation punishment.,MAPPED
+507,351(4),Criminal intimidation by an anonymous communication.,MAPPED
+504,352,Intentional insult with intent to provoke breach of the peace.,MAPPED
+505,353,Statements conducing to public mischief.,MAPPED
+508,354,Act caused by inducing person to believe that he will be rendered an object of the Divine displeasure.,MAPPED
+510,355,Misconduct in public by a drunken person.,MAPPED
+499,356(1),Defamation.,MAPPED
+500,356(2),Defamation punishment.,MAPPED
+501,356(3),Printing or engraving matter known to be defamatory.,MAPPED
+502,356(4),Sale of printed or engraved substance containing defamatory matter.,MAPPED
+491,357,Breach of contract to attend on and supply wants of helpless person.,MAPPED
+NONE,358,Repeal and Savings.,NEW_LAW
+IEA_1,BSA 1,"Short title, application and commencement of the Bharatiya Sakshya Adhiniyam",MAPPED
+IEA_3,BSA 2,"Definitions: Court, Document (including electronic records), Evidence, Fact, Proved, Disproved",MAPPED
+IEA_4,BSA 2(2),"Presumptions: May presume, Shall presume, Conclusive proof",MAPPED
+IEA_5,BSA 3,Evidence may be given of facts in issue and relevant facts,MAPPED
+IEA_6,BSA 4,Relevancy of facts forming part of same transaction (Res Gestae),MAPPED
+IEA_7,BSA 5,"Facts which are the occasion, cause or effect of facts in issue",MAPPED
+IEA_8,BSA 6,"Motive, preparation and previous or subsequent conduct",MAPPED
+IEA_9,BSA 7,"Facts necessary to explain or introduce relevant facts, Test Identification Parade (TIP)",MAPPED
+IEA_10,BSA 8,Things said or done by conspirator in reference to common design,MAPPED
+IEA_11,BSA 9,When facts not otherwise relevant become relevant (Plea of Alibi),MAPPED
+IEA_12,BSA 10,"In suits for damages, facts tending to enable Court to determine amount are relevant",MAPPED
+IEA_13,BSA 11,Facts relevant when right or custom is in question,MAPPED
+IEA_14,BSA 12,"Facts showing existence of state of mind, or of body or bodily feeling",MAPPED
+IEA_15,BSA 13,Facts bearing on question whether act was accidental or intentional,MAPPED
+IEA_16,BSA 14,Existence of course of business when relevant,MAPPED
+IEA_17,BSA 15,Admission defined,MAPPED
+IEA_18,BSA 16,Admission by party to proceeding or his agent,MAPPED
+IEA_19,BSA 17,Admissions by persons whose position must be proved as against party to suit,MAPPED
+IEA_20,BSA 18,Admissions by persons expressly referred to by party to suit,MAPPED
+IEA_21,BSA 19,Proof of admissions against persons making them,MAPPED
+IEA_22,BSA 20,When oral admissions as to contents of documents are relevant,MAPPED
+IEA_22A,BSA 20(2),When oral admission as to contents of electronic records are relevant,MAPPED
+IEA_23,BSA 21,Admissions in civil cases when relevant (without prejudice),MAPPED
+IEA_24,BSA 22,"Confession caused by inducement, threat or promise irrelevant in criminal proceeding",MAPPED
+IEA_25,BSA 23(1),Confession to police officer not to be proved,MAPPED
+IEA_26,BSA 23(2),Confession by accused while in custody of police not to be proved against him,MAPPED
+IEA_27,BSA 23(2),Discovery statement: How much of information received from accused may be proved,MAPPED
+IEA_28,BSA 24,"Confession made after removal of impression caused by inducement, threat or promise",MAPPED
+IEA_29,BSA 25,Confession otherwise relevant not to become irrelevant because of promise of secrecy,MAPPED
+IEA_30,BSA 25(2),Consideration of proved confession affecting person making it and others jointly under trial,MAPPED
+IEA_32,BSA 26,Dying declaration and statements by persons who cannot be called as witnesses,MAPPED
+IEA_33,BSA 27,"Relevancy of certain evidence for proving, in subsequent proceeding, the truth of facts",MAPPED
+IEA_34,BSA 28,Entries in books of account including electronic records,MAPPED
+IEA_35,BSA 29,Relevancy of entry in public record made in performance of duty,MAPPED
+IEA_36,BSA 30,"Relevancy of statements in maps, charts and plans",MAPPED
+IEA_37,BSA 31,Relevancy of statement as to fact of public nature contained in certain Acts or notifications,MAPPED
+IEA_38,BSA 32,Relevancy of statements as to any law contained in law books,MAPPED
+IEA_39,BSA 33,"What evidence to be given when statement forms part of a conversation, document, or book",MAPPED
+IEA_40,BSA 34,Previous judgments relevant to bar a second suit or trial (Res Judicata),MAPPED
+IEA_41,BSA 35,"Relevancy of judgments in probate, matrimonial, admiralty or insolvency jurisdiction",MAPPED
+IEA_42,BSA 36,"Relevancy and effect of judgments, orders or decrees relating to matters of public nature",MAPPED
+IEA_43,BSA 37,"Judgments other than those mentioned in sections 34, 35 and 36, when relevant",MAPPED
+IEA_44,BSA 38,"Fraud or collusion in obtaining judgment, or incompetency of Court, may be proved",MAPPED
+IEA_45,BSA 39,"Opinions of experts: foreign law, science, art, handwriting, finger impressions, ballistics, DNA",MAPPED
+IEA_45A,BSA 39(2),Opinion of Examiner of Electronic Evidence,MAPPED
+IEA_46,BSA 40,Facts bearing upon opinions of experts,MAPPED
+IEA_47,BSA 41,Opinion as to handwriting when relevant,MAPPED
+IEA_47A,BSA 42,Opinion as to electronic signature when relevant,MAPPED
+IEA_48,BSA 43,"Opinion as to existence of right or custom, when relevant",MAPPED
+IEA_49,BSA 44,"Opinion as to usages, tenets, etc., when relevant",MAPPED
+IEA_50,BSA 45,"Opinion on relationship, when relevant",MAPPED
+IEA_51,BSA 46,"Grounds of opinion, when relevant",MAPPED
+IEA_52,BSA 47,"In civil cases character to prove conduct imputed, irrelevant",MAPPED
+IEA_53,BSA 48,In criminal cases previous good character relevant,MAPPED
+IEA_53A,BSA 49,Evidence of character or previous sexual experience not relevant in certain sexual offences,MAPPED
+IEA_54,BSA 50,"Previous bad character not relevant in criminal proceedings, except in reply",MAPPED
+IEA_55,BSA 51,Character as affecting damages in civil proceedings,MAPPED
+IEA_56,BSA 52,Fact judicially noticeable need not be proved,MAPPED
+IEA_57,BSA 53,Facts of which Court must take judicial notice,MAPPED
+IEA_58,BSA 54,Facts admitted need not be proved,MAPPED
+IEA_59,BSA 55,Proof of facts by oral evidence,MAPPED
+IEA_60,BSA 56,Oral evidence must be direct (exclusion of hearsay),MAPPED
+IEA_61,BSA 57,Proof of contents of documents,MAPPED
+IEA_62,BSA 58,Primary evidence,MAPPED
+IEA_63,BSA 59,Secondary evidence,MAPPED
+IEA_64,BSA 60,Proof of documents by primary evidence,MAPPED
+IEA_65,BSA 61,Cases in which secondary evidence relating to documents may be given,MAPPED
+IEA_65A,BSA 62,Special provisions as to evidence relating to electronic record,MAPPED
+IEA_65B,BSA 63,Admissibility of electronic records and mandatory certificate requirements,MAPPED
+IEA_66,BSA 64,Rules as to notice to produce documents,MAPPED
+IEA_67,BSA 65,Proof of signature and handwriting of person alleged to have signed or written document,MAPPED
+IEA_67A,BSA 66,Proof as to electronic signature,MAPPED
+IEA_68,BSA 67,Proof of execution of document required by law to be attested,MAPPED
+IEA_69,BSA 68,Proof where no attesting witness found,MAPPED
+IEA_70,BSA 69,Admission of execution by party to attested document,MAPPED
+IEA_71,BSA 70,Proof when attesting witness denies the execution,MAPPED
+IEA_72,BSA 71,Proof of document not required by law to be attested,MAPPED
+IEA_73,BSA 72,"Comparison of signature, writing or seal with others admitted or proved",MAPPED
+IEA_73A,BSA 73,Proof as to verification of digital signature,MAPPED
+IEA_74,BSA 74,Public documents,MAPPED
+IEA_75,BSA 75,Private documents,MAPPED
+IEA_76,BSA 76,Certified copies of public documents,MAPPED
+IEA_77,BSA 77,Proof of documents by production of certified copies,MAPPED
+IEA_78,BSA 78,Proof of other official documents,MAPPED
+IEA_79,BSA 79,Presumption as to genuineness of certified copies,MAPPED
+IEA_80,BSA 80,Presumption as to documents produced as record of evidence,MAPPED
+IEA_81,BSA 81,"Presumption as to Gazettes, newspapers, and other official publications",MAPPED
+IEA_81A,BSA 82,Presumption as to Gazettes in electronic or digital form,MAPPED
+IEA_82,BSA 83,Presumption as to document admissible in evidence without proof of seal or signature,MAPPED
+IEA_83,BSA 84,Presumption as to maps or plans made by authority of Government,MAPPED
+IEA_84,BSA 85,Presumption as to collections of laws and reports of judicial decisions,MAPPED
+IEA_85,BSA 86,Presumption as to powers-of-attorney,MAPPED
+IEA_85A,BSA 87,Presumption as to electronic agreements,MAPPED
+IEA_85B,BSA 88,Presumption as to electronic records and electronic signatures,MAPPED
+IEA_85C,BSA 89,Presumption as to Electronic Signature Certificates,MAPPED
+IEA_86,BSA 90,Presumption as to certified copies of foreign judicial records,MAPPED
+IEA_87,BSA 91,"Presumption as to books, maps and charts",MAPPED
+IEA_88,BSA 92,Presumption as to telegraphic messages,MAPPED
+IEA_88A,BSA 93,Presumption as to electronic messages,MAPPED
+IEA_89,BSA 94,Presumption as to due execution of documents not produced,MAPPED
+IEA_90,BSA 95,Presumption as to documents thirty years old,MAPPED
+IEA_90A,BSA 96,Presumption as to electronic records five years old,MAPPED
+IEA_91,BSA 97,"Evidence of terms of contracts, grants and dispositions of property reduced to document",MAPPED
+IEA_92,BSA 98,Exclusion of evidence of oral agreement (Parol evidence rule),MAPPED
+IEA_93,BSA 99,Exclusion of evidence to explain or amend patent ambiguity in document,MAPPED
+IEA_94,BSA 100,Exclusion of evidence against application of document to existing facts,MAPPED
+IEA_95,BSA 101,Evidence as to document unmeaning in reference to existing facts,MAPPED
+IEA_96,BSA 102,Evidence as to application of language which can apply to one only of several persons,MAPPED
+IEA_97,BSA 103,Evidence as to application of language to one of two sets of facts,MAPPED
+IEA_98,BSA 103(2),"Evidence as to meaning of illegible characters, foreign, obsolete, technical expressions",MAPPED
+IEA_99,BSA 103(3),Who may give evidence of agreement varying terms of document,MAPPED
+IEA_100,BSA 103(4),Saving of provisions of Indian Succession Act relating to wills,MAPPED
+IEA_101,BSA 104,Burden of proof in civil and criminal proceedings,MAPPED
+IEA_102,BSA 105,On whom burden of proof lies in legal proceedings,MAPPED
+IEA_103,BSA 106,Burden of proof as to particular fact,MAPPED
+IEA_104,BSA 107,Burden of proving fact to be proved to make evidence admissible,MAPPED
+IEA_105,BSA 108,Burden of proving that case of accused comes within General Exceptions,MAPPED
+IEA_106,BSA 109,Burden of proving fact especially within knowledge of a person,MAPPED
+IEA_107,BSA 110,Burden of proving death of person known to have been alive within thirty years,MAPPED
+IEA_108,BSA 111,Burden of proving that person is alive who has not been heard of for seven years,MAPPED
+IEA_109,BSA 112,"Burden of proof as to relationship of partners, landlord and tenant, principal and agent",MAPPED
+IEA_110,BSA 113,Burden of proof as to ownership of property,MAPPED
+IEA_111,BSA 114,Proof of good faith in transactions where one party is in relation of active confidence,MAPPED
+IEA_111A,BSA 115,Presumption as to certain offences in disturbed areas,MAPPED
+IEA_112,BSA 116,"Birth during marriage, conclusive proof of legitimacy",MAPPED
+IEA_113A,BSA 117,Presumption as to abetment of suicide by a married woman (cruelty within 7 years of marriage),MAPPED
+IEA_113B,BSA 118,Presumption as to dowry death (death caused soon before demand for dowry),MAPPED
+IEA_114,BSA 119,Court may presume existence of certain common course of natural events and human conduct,MAPPED
+IEA_114A,BSA 120,Presumption as to absence of consent in certain prosecutions for rape,MAPPED
+IEA_115,BSA 121,Estoppel by representation,MAPPED
+IEA_116,BSA 122,Estoppel of tenant and of licensee of person in possession,MAPPED
+IEA_117,BSA 123,"Estoppel of acceptor of bill of exchange, bailee or licensee",MAPPED
+IEA_118,BSA 124,Competency of witnesses (Who may testify),MAPPED
+IEA_119,BSA 125,Witness unable to communicate verbally (testimony by writing or signs in open court),MAPPED
+IEA_120,BSA 126,"Parties to civil suit, and husband or wife of person under criminal trial as competent witnesses",MAPPED
+IEA_121,BSA 127,Privilege of Judges and Magistrates regarding questions on conduct in court,MAPPED
+IEA_122,BSA 128,Privileged communications during marriage,MAPPED
+IEA_123,BSA 129,Evidence as to affairs of State (State privilege),MAPPED
+IEA_124,BSA 130,Official communications privilege,MAPPED
+IEA_125,BSA 131,Information as to commission of offences (informer privilege),MAPPED
+IEA_126,BSA 132,Professional communications between advocate and client (Legal professional privilege),MAPPED
+IEA_127,BSA 133,"Professional privilege extended to clerks, interpreters and servants of advocates",MAPPED
+IEA_128,BSA 134,Privilege not waived by volunteering evidence,MAPPED
+IEA_129,BSA 135,Confidential communications with legal advisers,MAPPED
+IEA_130,BSA 136,"Production of title-deeds of witness, not a party",MAPPED
+IEA_131,BSA 137,Production of documents or electronic records which another person could refuse to produce,MAPPED
+IEA_132,BSA 138,Witness not excused from answering on ground that answer will criminate,MAPPED
+IEA_133,BSA 139,Accomplice shall be a competent witness against an accused person,MAPPED
+IEA_134,BSA 140,No particular number of witnesses required for proof of any fact,MAPPED
+IEA_135,BSA 141,Order of production and examination of witnesses,MAPPED
+IEA_136,BSA 142,Judge to decide as to admissibility of evidence,MAPPED
+IEA_137,BSA 143,"Examination-in-chief, Cross-examination and Re-examination",MAPPED
+IEA_138,BSA 144,Order of examinations,MAPPED
+IEA_139,BSA 145,Cross-examination of person called to produce a document,MAPPED
+IEA_140,BSA 146,Witnesses to character may be cross-examined and re-examined,MAPPED
+IEA_141,BSA 147,Leading questions defined,MAPPED
+IEA_142,BSA 147(2),When leading questions must not be asked in examination-in-chief or re-examination,MAPPED
+IEA_143,BSA 147(3),When leading questions may be asked in cross-examination,MAPPED
+IEA_144,BSA 148,Evidence as to matters in writing,MAPPED
+IEA_145,BSA 148(2),Cross-examination as to previous statements in writing,MAPPED
+IEA_146,BSA 149,"Questions lawful in cross-examination to test veracity, discover position, or shake credit",MAPPED
+IEA_147,BSA 150,When witness to be compelled to answer questions in cross-examination,MAPPED
+IEA_148,BSA 151,Court to decide when question shall be asked and when witness compelled to answer,MAPPED
+IEA_149,BSA 152,Question not to be asked without reasonable grounds,MAPPED
+IEA_150,BSA 153,Procedure of Court in case of question being asked without reasonable grounds,MAPPED
+IEA_151,BSA 154,Indecent and scandalous questions,MAPPED
+IEA_152,BSA 155,Questions intended to insult or annoy,MAPPED
+IEA_153,BSA 156,Exclusion of evidence to contradict answers to questions testing veracity,MAPPED
+IEA_154,BSA 157,Question by party to his own witness (Hostile witness declaration),MAPPED
+IEA_155,BSA 158,Impeaching credit of witness by evidence of adverse party,MAPPED
+IEA_156,BSA 159,"Questions tending to corroborate evidence of relevant fact, admissible",MAPPED
+IEA_157,BSA 160,Former statements of witness may be proved to corroborate later testimony,MAPPED
+IEA_158,BSA 161,What matters may be proved in connection with proved statement relevant under section 26 or 27,MAPPED
+IEA_159,BSA 162,Refreshing memory by writing made by witness or another,MAPPED
+IEA_160,BSA 163,Testimony to facts stated in document mentioned in section 162,MAPPED
+IEA_161,BSA 164,Right of adverse party as to writing used to refresh memory,MAPPED
+IEA_162,BSA 165,"Production of documents upon summons, inspection and translation by Court",MAPPED
+IEA_163,BSA 166,"Giving, as evidence, of document called for and produced on notice",MAPPED
+IEA_164,BSA 167,"Using, as evidence, of document production of which was refused on notice",MAPPED
+IEA_165,BSA 168,Judge power to put questions or order production of any document or thing,MAPPED
+IEA_166,BSA 169,Power of jury or assessors to put questions,MAPPED
+IEA_167,BSA 170,No new trial for improper admission or rejection of evidence,MAPPED

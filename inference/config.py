@@ -70,6 +70,11 @@ INFERENCE_CONFIG = {
     "top_p":                0.9,
     "max_new_tokens":       200,
 
+    # ── IPC to BNS statutory transition layer ─────────────────────────────
+    "enable_bns_conversion": True,
+    "bns_mapping_csv":       os.path.join(_REPO_ROOT, "ipc_to_bns", "bns_ipc_mapping_clean.csv"),
+    "domain_name":           os.environ.get("LEGAL_DOMAIN", "Employment & Labour Law"),
+
     # ── misc ────────────────────────────────────────────────────────────────
     "bert_model":           "law-ai/InLegalBERT",
     "seed":                 42,
