@@ -381,6 +381,16 @@ class LegalQAEngine:
         if self._enable_bns and self._bns_converter is not None:
             q_emb_norm = F.normalize(q_emb, dim=1) if q_emb is not None else None
             domain_name = config.get("domain_name", "Employment & Labour Law")
+            
+            # Auto-detect criminal law domain if query contains criminal/penal keywords
+            criminal_kws = (
+                "defam", "porn", "police", "arrest", "fir", "jail", "intimidation",
+                "theft", "murder", "forgery", "cheat", "cruelty", "dowry", "modesty",
+                "extort", "harass", "confinement", "assault"
+            )
+            if any(k in question.lower() for k in criminal_kws):
+                domain_name = "Criminal Law"
+
             bns_meta = self._bns_converter.process_query(
                 question=question,
                 chain_extended=chain_extended,
@@ -400,6 +410,10 @@ class LegalQAEngine:
 
         # Step 8: Post-process answer
         answer = infer.postprocess_answer(raw_answer)
+
+        # Step 8b: Statutory sanitize — failsafe guarantee that no legacy IPC/IEA citations slip through
+        if self._enable_bns and self._bns_converter is not None:
+            answer = self._bns_converter.sanitize_answer(answer)
 
         # Step 9: Build response
         retrieved_cases = []
