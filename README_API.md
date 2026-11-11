@@ -139,3 +139,22 @@ Main Application Backend
 │  GPT-4o Generation    │ ← OpenAI API
 └──────────────────────┘
 ```
+
+## Deploying on small instances (e.g. Render 512 MB)
+
+The Docker build runs `python -m inference.bert_loader`, which saves an int8-quantized
+InLegalBERT to `models/inlegalbert_qint8.pt`. The server loads that file directly, so the
+~440 MB fp32 model is never held in memory (loading and quantizing it at startup peaked
+above 512 MB). If the file is missing or was built with different torch/transformers
+versions, the server falls back to loading fp32 and quantizing in place, which needs
+more memory at startup.
+
+Outside Docker (e.g. a native Render Python service), add the same step to the build command:
+
+```bash
+pip install -r requirements.txt && python -m inference.bert_loader
+```
+
+The three modes share one copy of the knowledge graph, TF-IDF seed index, node metadata
+and statutory converter (their `edges.csv` / `nodes.csv` are identical); only the
+per-mode RL, DSSM, retrieval-index and node-embedding checkpoints are loaded three times.

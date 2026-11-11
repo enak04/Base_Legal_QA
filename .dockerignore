@@ -49,3 +49,17 @@ HKG+PC+RL/Employment_Labour/*/graph_edgelist.txt
 
 # Exclude tests from production image
 tests/
+
+# Locally built quantized BERT: the image builds its own (must match its torch/transformers)
+models/
+
+# Offline batch tooling / sample data for the statutory layer (not used by the API)
+ipc_to_bns/infer.py
+ipc_to_bns/run_bns_queries.py
+ipc_to_bns/my_bns_questions.csv
+ipc_to_bns/bns_test_answers.csv
+Hier KG/
+HKG+PC/
+HKG+RL/
+scratch/test_openai_key.py
+scratch/create_mock_checkpoints.py

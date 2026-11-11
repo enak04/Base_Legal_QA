@@ -316,6 +316,70 @@ class TestSanitizer(unittest.TestCase):
             out = self.s(t)
             self.assertFalse(any(0xE000 <= ord(ch) <= 0xF8FF for ch in out), out)
 
+    def test_transition_format_requested_by_prompt_untouched(self):
+        # build_domain_prompt asks for exactly this format for pre-1 July 2024 matters
+        for txt in (
+            "You are charged under Section 420 IPC (now Section 318(4) BNS).",
+            "Apply under Section 156(3) CrPC (now Section 175(3) BNSS) before the Magistrate.",
+            "Under Section 65B of the Evidence Act (now Section 63 BSA), attach a certificate.",
+            "Section 498A IPC (now Sections 85 and 86 BNS) applies to the 2022 complaint.",
+        ):
+            self.assertEqual(self.s(txt), txt)
+
+    def test_plain_citation_next_to_transition_citation_still_converted(self):
+        out = self.s("Section 420 IPC (now Section 318(4) BNS) and Section 406 IPC apply.")
+        self.assertIn("Section 420 IPC (now Section 318(4) BNS)", out)
+        self.assertIn("(formerly Section 406 IPC)", out)
+
+
+class TestCorpusMismatch(unittest.TestCase):
+    """The API serves every question from the Employment & Labour KG / precedent DB."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.conv = BNSConverter()
+        cls.labour_precedents = [{
+            "question": "Lockdown wages not paid",
+            "answer": "The employer was booked u/s 188 IPC and section 270 IPC for violating lockdown orders.",
+        }]
+
+    def test_criminal_question_ignores_sections_from_labour_precedents(self):
+        r = self.conv.process_query(
+            "Police refused to register my FIR for cheating by my employer.", [], self.labour_precedents,
+            domain_name=CRIMINAL_DOMAIN, corpus_domain=LABOUR_DOMAIN)
+        self.assertNotIn("188", r["discovered_ipcs"])
+        self.assertNotIn("270", r["discovered_ipcs"])
+        self.assertIn("318(4)", r["statutory_menu"])      # keyword-based cheating section kept
+        self.assertIn("database and may not match this Criminal Law question", r["prompt"])
+
+    def test_matching_corpus_still_harvests_precedents(self):
+        r = self.conv.process_query(
+            "Police refused to register my FIR for cheating.", [], self.labour_precedents,
+            domain_name=CRIMINAL_DOMAIN, corpus_domain=CRIMINAL_DOMAIN)
+        self.assertIn("188", r["discovered_ipcs"])
+        self.assertNotIn("may not match", r["prompt"])
+
+    def test_no_corpus_domain_keeps_previous_behaviour(self):
+        r = self.conv.process_query(
+            "Police refused to register my FIR for cheating.", [], self.labour_precedents,
+            domain_name=CRIMINAL_DOMAIN)
+        self.assertIn("188", r["discovered_ipcs"])
+
+
+class TestRequiredFiles(unittest.TestCase):
+
+    def test_required_files_follow_the_given_config(self):
+        from inference.config import INFERENCE_CONFIG, get_required_files
+        cfg = dict(INFERENCE_CONFIG)
+        for key in ("rl_model_path", "dssm_model_path", "retrieval_index",
+                    "node_emb_cache_path", "kg_path", "nodes_csv_path"):
+            cfg[key] = os.path.join("some_mode_dir", os.path.basename(INFERENCE_CONFIG[key]))
+        files = get_required_files(cfg)
+        self.assertTrue(all(f["path"].startswith("some_mode_dir") for f in files))
+        kg = next(f for f in files if f["path"].endswith("edges.csv"))
+        self.assertEqual(kg["name"], "edges.csv")          # name matches the file actually checked
+        self.assertEqual(len(get_required_files()), 6)     # default config still works
+
 
 if __name__ == "__main__":
     unittest.main()

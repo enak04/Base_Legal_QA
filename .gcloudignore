@@ -47,3 +47,6 @@ HKG+PC+RL/Employment_Labour/*/graph_edgelist.txt
 
 # Tests
 tests/
+
+# Locally built quantized BERT (the image builds its own)
+models/
