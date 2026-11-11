@@ -657,6 +657,7 @@ def build_statutory_candidate_menu(
     explicit_crpcs: Optional[set] = None,
     crpc_to_bnss: Optional[dict] = None,
     bnss_subjects: Optional[dict] = None,
+    use_semantic_search: bool = False,
 ) -> Tuple[str, List[str]]:
     """
     Compiles candidate legal menu for the modern prompt:
@@ -757,8 +758,13 @@ def build_statutory_candidate_menu(
                 mapped_bns_list.append(f"BNS {bns}")
             seen_modern.add(bns)
 
-    # 5. Full-Catalogue Semantic Ranking (criminal questions only)
-    if is_criminal and q_emb_norm is not None and modern_embs_norm is not None and modern_list:
+    # 5. Full-Catalogue Semantic Ranking (criminal questions only, OFF by default).
+    #    Raw InLegalBERT [CLS] similarities are not discriminative here: ~66% of all 686
+    #    provisions score above the 0.45 threshold and the top 15 sit within ~0.03 of each
+    #    other, so this step added unrelated sections (e.g. soldier abetment, bigamy) to
+    #    FIR / bail questions. Kept behind a flag for experiments with better embeddings.
+    if (use_semantic_search and is_criminal and q_emb_norm is not None
+            and modern_embs_norm is not None and modern_list):
         try:
             sims = torch.mm(q_emb_norm, modern_embs_norm.t()).squeeze(0)
             k_search = min(top_k_modern, len(modern_list))
@@ -926,7 +932,13 @@ class BNSConverter:
     Modular statutory conversion engine that plugs into any legal QA pipeline.
     """
 
-    def __init__(self, mapping_csv_path: Optional[str] = None, crpc_mapping_csv_path: Optional[str] = None):
+    def __init__(
+        self,
+        mapping_csv_path: Optional[str] = None,
+        crpc_mapping_csv_path: Optional[str] = None,
+        use_semantic_search: bool = False,
+    ):
+        self.use_semantic_search = use_semantic_search
         self.mapping_csv_path = resolve_mapping_path(mapping_csv_path)
         self.ipc_to_bns, self.iea_to_bsa, self.modern_semantics = load_statutory_mappings(self.mapping_csv_path)
         # CrPC -> BNSS is kept separate from modern_semantics so the cached
@@ -1043,6 +1055,7 @@ class BNSConverter:
             explicit_crpcs=explicit_crpcs,
             crpc_to_bnss=self.crpc_to_bnss,
             bnss_subjects=self.bnss_subjects,
+            use_semantic_search=self.use_semantic_search,
         )
 
         # 4. Build prompt

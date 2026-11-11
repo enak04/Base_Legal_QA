@@ -76,6 +76,9 @@ INFERENCE_CONFIG = {
     "domain_name":           os.environ.get("LEGAL_DOMAIN", "Employment & Labour Law"),
     # Classify each question as criminal / family / labour for the prompt (domain_name is the fallback)
     "auto_detect_domain":    os.environ.get("AUTO_DETECT_DOMAIN", "true").strip().lower() in ("1", "true", "yes"),
+    # Whole-BNS InLegalBERT similarity search for candidate sections. Off: raw [CLS]
+    # similarities are not discriminative and added unrelated sections to prompts.
+    "semantic_statute_search": os.environ.get("SEMANTIC_STATUTE_SEARCH", "false").strip().lower() in ("1", "true", "yes"),
     # CrPC -> BNSS concordance (verified against the CAPT Bhopal correspondence table)
     "crpc_mapping_csv":      os.path.join(_REPO_ROOT, "ipc_to_bns", "crpc_bnss_mapping.csv"),
 

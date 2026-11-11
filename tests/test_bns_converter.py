@@ -175,6 +175,24 @@ class TestCandidateMenu(unittest.TestCase):
         lab, _ = self._menu("I work in the maintenance department and my salary is unpaid for 3 months.")
         self.assertNotIn("144", lab)
 
+    def test_semantic_catalogue_search_off_by_default(self):
+        import torch
+        from ipc_to_bns.bns_converter import build_statutory_candidate_menu
+        n = len(self.conv.modern_list)
+        kwargs = dict(
+            explicit_ipcs=set(), kg_ipcs=set(), ipc_to_bns=self.conv.ipc_to_bns,
+            explicit_ieas=set(), kg_ieas=set(), iea_to_bsa=self.conv.iea_to_bsa,
+            kg_domain_sections={}, modern_semantics=self.conv.modern_semantics,
+            q_emb_norm=torch.ones(1, 4) / 2, modern_embs_norm=torch.ones(n, 4) / 2,
+            modern_list=self.conv.modern_list, question="police are not registering my FIR",
+            is_criminal=True,
+        )
+        menu_default, _ = build_statutory_candidate_menu(**kwargs)
+        self.assertNotIn("Contextually Retrieved", menu_default)
+        self.assertFalse(self.conv.use_semantic_search)
+        menu_on, _ = build_statutory_candidate_menu(use_semantic_search=True, **kwargs)
+        self.assertIn("Contextually Retrieved", menu_on)
+
     def test_bsa63_only_with_electronic_evidence(self):
         with_chats, _ = self._menu("Divorce case: will the court accept my wife's WhatsApp chats as proof?")
         without, _ = self._menu("Divorce case: will the court accept my wife's letters as proof?")

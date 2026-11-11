@@ -305,7 +305,9 @@ class LegalQAEngine:
                 from ipc_to_bns.bns_converter import BNSConverter, load_node_metadata
                 logger.info("Initializing BNS statutory transition layer...")
                 self._bns_converter = BNSConverter(
-                    config.get("bns_mapping_csv"), config.get("crpc_mapping_csv")
+                    config.get("bns_mapping_csv"),
+                    config.get("crpc_mapping_csv"),
+                    use_semantic_search=config.get("semantic_statute_search", False),
                 )
                 self._node_type_map, self._node_desc_map, _ = load_node_metadata(
                     config.get("nodes_csv_path", "nodes.csv")
