@@ -1,5 +1,6 @@
 """
 IPC to BNS Statutory Conversion Layer
+(IPC -> BNS, CrPC -> BNSS, Indian Evidence Act -> BSA)
 """
 
 from .bns_converter import (
@@ -10,8 +11,13 @@ from .bns_converter import (
     build_domain_prompt,
     normalize_ipc_section,
     normalize_iea_section,
+    normalize_crpc_section,
     load_statutory_mappings,
+    load_crpc_mappings,
+    lookup_bnss,
     load_node_metadata,
+    detect_legal_domain,
+    classify_unlabelled_section,
 )
 
 __all__ = [
@@ -22,6 +28,11 @@ __all__ = [
     "build_domain_prompt",
     "normalize_ipc_section",
     "normalize_iea_section",
+    "normalize_crpc_section",
     "load_statutory_mappings",
+    "load_crpc_mappings",
+    "lookup_bnss",
     "load_node_metadata",
+    "detect_legal_domain",
+    "classify_unlabelled_section",
 ]

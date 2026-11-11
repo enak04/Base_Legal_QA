@@ -53,7 +53,7 @@ For every user query, the pipeline executes the following 5 stages:
      ▼
 [Stage 5: Domain-Adaptive Generation (LLM)]
   - Formats context into structured CoT prompt with domain-specific legal advisory rules.
-  - Generates client-facing legal advice via GPT-4o-mini with negative constraints preventing legacy citation.
+  - Generates client-facing legal advice via GPT-4o-mini with a domain-specific prompt (criminal: BNS/BNSS/BSA; family & labour: governing civil statutes) and the 1 July 2024 transition rule.
 ```
 
 ---
@@ -82,7 +82,7 @@ When `--domain family` is passed:
 ## 4. Statutory Translation Engine
 
 ### 1. Penal Law: IPC $\rightarrow$ BNS (2023)
-* Loaded from `bns_ipc_mapping_final.csv` (or `bns_ipc_mapping_clean.csv`).
+* Loaded from `bns_ipc_mapping_clean.csv` (737 rows; rows whose `Old_IPC` starts with `IEA_` hold the Evidence Act mappings).
 * Mappings are normalized to strip punctuation and sub-clauses (`498(A)` $\rightarrow$ `498A`).
 * Examples:
   * Cheating: IPC 415 / 420 $\rightarrow$ **BNS 318(4)**
@@ -91,7 +91,7 @@ When `--domain family` is passed:
   * Bigamy: IPC 494 $\rightarrow$ **BNS 82**
 
 ### 2. Evidence Law: IEA $\rightarrow$ BSA (2023)
-* Loaded from `iea_bsa_mapping.csv` and unified in `bns_ipc_mapping_final.csv`.
+* Loaded from the `IEA_` rows of `bns_ipc_mapping_clean.csv`.
 * Normalized with `IEA_` prefix (`IEA_27`, `IEA_65B`).
 * Examples:
   * Discovery Statement: IEA 27 $\rightarrow$ **BSA 23(2)**
@@ -108,6 +108,19 @@ When running on Family or Labour graphs, the 2-hop traversal encounters civil se
 * `PGA_4`: Payment of Gratuity (*Payment of Gratuity Act*)
 
 The engine pulls human-readable descriptions directly from `nodes.csv` and provides them to the LLM under `DOMAIN STATUTORY PROVISIONS`, ensuring civil laws are accurately preserved and cited under their actual parent Acts.
+
+### 4. Procedure: CrPC $\rightarrow$ BNSS (2023)
+* Loaded from `crpc_bnss_mapping.csv` (67 commonly used sections). Every row was checked against the *Correspondence Table and Comparison Summary of BNSS 2023 and CrPC 1973* (CAPT Bhopal); `Source_Page` gives the page in that PDF.
+* Sub-section aware where the table supports it (`156(3)` $\rightarrow$ **BNSS 175(3)**); otherwise falls back to the section (`167(2)` $\rightarrow$ **BNSS 187**).
+* Examples: FIR 154 $\rightarrow$ **173** · Magistrate-ordered investigation 156(3) $\rightarrow$ **175(3)** · notice of appearance 41A $\rightarrow$ **35** · maintenance 125 $\rightarrow$ **144** · remand 167 $\rightarrow$ **187** · chargesheet 173 $\rightarrow$ **193** · anticipatory bail 438 $\rightarrow$ **482** · bail 439 $\rightarrow$ **483** · inherent powers / quashing 482 $\rightarrow$ **528**.
+
+### 5. Accuracy safeguards
+* **Domain awareness.** `detect_legal_domain()` classifies each question as Criminal, Family & Matrimonial, or Employment & Labour. Only criminal questions get BNS/BNSS/BSA framing, offence-keyword candidates, graph-discovered penal sections and the full-catalogue semantic search. Family and labour questions are answered under their civil statutes, and a penal section is listed only if the user raised it. (`auto_detect_domain=False` keeps a fixed domain, as `run_bns_queries.py` does.)
+* **No forced citations.** The prompt no longer hard-codes a list of BNS sections or orders the model to cite BSA s.63 for all evidence; s.63 is offered only when electronic records are in the facts. The old "fallback" that inserted defamation/cheating/obscenity sections into every empty menu is removed.
+* **Unlabelled section numbers.** "u/s 156(3) before the CJM" or "quashing u/s 482" are classified from context as CrPC; "FIR u/s 420" as IPC; ambiguous numbers are not converted (previously every unlabelled number was treated as IPC, e.g. 482 $\rightarrow$ BNS 345(3)).
+* **Transition rule.** Offences committed, and proceedings started, before 1 July 2024 remain under the old codes, so the prompt asks for "Section 420 IPC (now Section 318(4) BNS)" in such cases, and `sanitize_answer()` keeps the old reference when converting.
+* **Safe sanitizer.** An IPC/CrPC/IEA section that is not in the concordance is never relabelled with its old number as a BNS/BNSS/BSA section; already annotated citations and transition sentences are left untouched.
+* Tests: `tests/test_bns_converter.py` (no model checkpoints or API key needed).
 
 ---
 

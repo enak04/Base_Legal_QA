@@ -74,6 +74,10 @@ INFERENCE_CONFIG = {
     "enable_bns_conversion": True,
     "bns_mapping_csv":       os.path.join(_REPO_ROOT, "ipc_to_bns", "bns_ipc_mapping_clean.csv"),
     "domain_name":           os.environ.get("LEGAL_DOMAIN", "Employment & Labour Law"),
+    # Classify each question as criminal / family / labour for the prompt (domain_name is the fallback)
+    "auto_detect_domain":    os.environ.get("AUTO_DETECT_DOMAIN", "true").strip().lower() in ("1", "true", "yes"),
+    # CrPC -> BNSS concordance (verified against the CAPT Bhopal correspondence table)
+    "crpc_mapping_csv":      os.path.join(_REPO_ROOT, "ipc_to_bns", "crpc_bnss_mapping.csv"),
 
     # ── misc ────────────────────────────────────────────────────────────────
     "bert_model":           "law-ai/InLegalBERT",

@@ -137,6 +137,8 @@ def create_engine_for_bns(domain: str = "labour", mode: str = "actionable", mode
     cfg["domain_name"] = "Employment & Labour Law" if "labour" in domain.lower() else (
         "Criminal Law" if "crim" in domain.lower() else "Family & Matrimonial Law"
     )
+    # This runner is domain-specific: keep the chosen domain instead of auto-detecting per question
+    cfg["auto_detect_domain"] = False
 
     if model:
         cfg["openai_model"] = model

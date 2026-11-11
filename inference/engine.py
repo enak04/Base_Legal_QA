@@ -304,7 +304,9 @@ class LegalQAEngine:
             try:
                 from ipc_to_bns.bns_converter import BNSConverter, load_node_metadata
                 logger.info("Initializing BNS statutory transition layer...")
-                self._bns_converter = BNSConverter(config.get("bns_mapping_csv"))
+                self._bns_converter = BNSConverter(
+                    config.get("bns_mapping_csv"), config.get("crpc_mapping_csv")
+                )
                 self._node_type_map, self._node_desc_map, _ = load_node_metadata(
                     config.get("nodes_csv_path", "nodes.csv")
                 )
@@ -380,16 +382,15 @@ class LegalQAEngine:
         bns_meta = None
         if self._enable_bns and self._bns_converter is not None:
             q_emb_norm = F.normalize(q_emb, dim=1) if q_emb is not None else None
+
+            # Classify the question as criminal / family & matrimonial / labour so the
+            # conversion layer only applies penal (BNS) framing to criminal matters.
+            # Only the label passed to the prompt changes; graph, RL and retrieval do not.
+            # Set auto_detect_domain=False to force config["domain_name"] (e.g. per-domain batch runs).
             domain_name = config.get("domain_name", "Employment & Labour Law")
-            
-            # Auto-detect criminal law domain if query contains criminal/penal keywords
-            criminal_kws = (
-                "defam", "porn", "police", "arrest", "fir", "jail", "intimidation",
-                "theft", "murder", "forgery", "cheat", "cruelty", "dowry", "modesty",
-                "extort", "harass", "confinement", "assault"
-            )
-            if any(k in question.lower() for k in criminal_kws):
-                domain_name = "Criminal Law"
+            if config.get("auto_detect_domain", True):
+                from ipc_to_bns.bns_converter import detect_legal_domain
+                domain_name = detect_legal_domain(question, default=domain_name)
 
             bns_meta = self._bns_converter.process_query(
                 question=question,
