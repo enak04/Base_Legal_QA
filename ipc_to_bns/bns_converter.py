@@ -494,14 +494,10 @@ def load_node_metadata(nodes_csv_path: str = "nodes.csv"):
         logger.warning("Node metadata file '%s' not found.", nodes_csv_path)
         return {}, {}, {}
 
-    # Read only the columns used here: nodes.csv also carries long answer columns
-    # (query_text / *_answer) that would otherwise be parsed into memory for nothing.
-    wanted = {"node_id", "type", "act", "desc", "text"}
-    usecols = lambda c: c.strip().lower() in wanted  # noqa: E731
     try:
-        df = pd.read_csv(nodes_csv_path, usecols=usecols)
+        df = pd.read_csv(nodes_csv_path)
     except Exception:
-        df = pd.read_csv(nodes_csv_path, usecols=usecols, engine="python", on_bad_lines="skip")
+        df = pd.read_csv(nodes_csv_path, engine="python", on_bad_lines="skip")
 
     df.columns = [c.strip().lower() for c in df.columns]
     node_type_map = {}
@@ -874,7 +870,6 @@ def build_domain_prompt(
     statutory_menu: str,
     domain_name: str = "Criminal Law",
     is_criminal: Optional[bool] = None,
-    corpus_domain: Optional[str] = None,
 ) -> str:
     """
     Structured CoT prompt for the final answer.
@@ -896,16 +891,6 @@ def build_domain_prompt(
         context_lines.append(f"Precedent Ratio: {r.get('answer', '')}")
         context_lines.append("")
     context_str = "\n".join(context_lines).strip()
-
-    # The deployed API has one KG + precedent database (Employment & Labour). For a
-    # question classified into another domain, say so instead of letting labour
-    # precedents silently steer e.g. a criminal answer.
-    precedent_note = "Precedents may cite repealed codes — apply their ratio using the current provisions"
-    if corpus_domain and corpus_domain.strip().lower() != (domain_name or "").strip().lower():
-        precedent_note += (
-            f". NOTE: these precedents and the reasoning chain come from the {corpus_domain} database "
-            f"and may not match this {domain_name} question; use them only where they are clearly relevant"
-        )
 
     transition_rule = (
         "On 1 July 2024 the Indian Penal Code (IPC), the Code of Criminal Procedure (CrPC) and the "
@@ -962,7 +947,7 @@ CANDIDATE STATUTORY PROVISIONS (MODERN LAW):
 REASONING CHAIN (Concept Path):
 {chain_str}
 
-HISTORICAL CASE LAW ({precedent_note}):
+HISTORICAL CASE LAW (Precedents may cite repealed codes — apply their ratio using the current provisions):
 {context_str}
 
 USER'S QUESTION:
@@ -1053,7 +1038,6 @@ class BNSConverter:
         node_desc_map: Optional[dict] = None,
         domain_name: str = "Criminal Law",
         q_emb_norm: Optional[torch.Tensor] = None,
-        corpus_domain: Optional[str] = None,
     ) -> dict:
         """
         Executes the conversion layer:
@@ -1081,13 +1065,7 @@ class BNSConverter:
         explicit_ieas = set(text_statutes["ieas"])
         explicit_crpcs = set(text_statutes["crpcs"])
 
-        # Precedents / graph neighbours from a corpus of another domain (e.g. the labour KG
-        # answering a criminal question) carry unrelated sections, such as lockdown-era
-        # IPC 188 / 270 from labour cases. Only harvest them when the corpus matches.
-        corpus_mismatch = bool(
-            corpus_domain and corpus_domain.strip().lower() != (domain_name or "").strip().lower()
-        )
-        if criminal and not corpus_mismatch:
+        if criminal:
             for item in top_k:
                 q_stat = extract_statutes_from_text(item.get("question", ""))
                 a_stat = extract_statutes_from_text(item.get("answer", ""))
@@ -1127,7 +1105,6 @@ class BNSConverter:
             statutory_menu=statutory_menu,
             domain_name=domain_name,
             is_criminal=criminal,
-            corpus_domain=corpus_domain,
         )
 
         mapped_bnss = [
@@ -1177,20 +1154,9 @@ class BNSConverter:
 
         P_IPC, P_IEA, P_CRPC = protect("IPC"), protect("Indian Evidence Act"), protect("CrPC")
 
-        # "Section 420 IPC (now Section 318(4) BNS)" is the transition format the prompt asks
-        # for (offences / proceedings before 1 July 2024): the old citation is followed by
-        # its modern equivalent in brackets and must be kept as written.
-        modern_follows = re.compile(
-            r'\s*[,(\[]\s*(?:now|presently|currently|i\.e\.|which\s+is\s+now|corresponding\s+to|'
-            r'equivalent\s+to|replaced\s+by|new|under\s+the\s+new)\b[^\n]{0,80}?\b(?:BNS|BNSS|BSA)\b',
-            re.IGNORECASE,
-        )
-
         def already_annotated(m) -> bool:
             before = m.string[max(0, m.start() - 20):m.start()].lower()
-            if any(w in before for w in ("formerly", "erstwhile", "earlier", "previously", "old ")):
-                return True
-            return bool(modern_follows.match(m.string, m.end()))
+            return any(w in before for w in ("formerly", "erstwhile", "earlier", "previously", "old "))
 
         def join_secs(secs: List[str]) -> str:
             return ("Sections " if len(secs) > 1 else "Section ") + " and ".join(secs)

@@ -96,15 +96,20 @@ def get_engine_for_mode(mode: str) -> LegalQAEngine:
             msg_lines.append(f"  ✗ {f['name']} (Path: {f['path']})")
         raise FileNotFoundError("\n".join(msg_lines))
 
-    # Initialize shared model/tokenizer if not already loaded.
-    # Loads the int8 model prebuilt at image build time (inference/bert_loader.py), so the
-    # ~440 MB fp32 model is never held next to its quantized copy (the 512 MB OOM on Render).
+    # Initialize shared model/tokenizer if not already loaded
     if shared_tok is None or shared_bert is None:
         logger.info("Initializing globally shared InLegalBERT...")
-        from inference.bert_loader import load_bert_low_mem
+        from inference.engine import _load_infer_module
+        infer_mod = _load_infer_module(cfg)
         device = torch.device(cfg["device"])
-        shared_tok, shared_bert = load_bert_low_mem(cfg["bert_model"], device)
-        gc.collect()
+        shared_tok, shared_bert = infer_mod.load_bert(cfg["bert_model"], device)
+        
+        # Apply 8-bit dynamic quantization to save ~330MB of RAM on CPU
+        if device.type == "cpu":
+            logger.info("Applying 8-bit dynamic quantization to InLegalBERT for CPU...")
+            shared_bert = torch.quantization.quantize_dynamic(
+                shared_bert, {torch.nn.Linear}, dtype=torch.qint8
+            )
 
     # Load engine models using the shared BERT instances
     eng.load_models(shared_tok=shared_tok, shared_bert=shared_bert)
@@ -127,9 +132,8 @@ async def lifespan(app: FastAPI):
         except Exception as e:
             logger.warning("  ⚠️ Could not pre-warm mode '%s': %s", mode, e)
 
-    gc.collect()
     logger.info("=" * 65)
-    logger.info("  ✅ Pre-warm finished: %s ready.", ", ".join(engines) or "no modes")
+    logger.info("  ✅ All 3 modes pre-warmed & ready for instantaneous inference!")
     logger.info("=" * 65)
 
     yield  # Server runs here

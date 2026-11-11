@@ -14,13 +14,10 @@ the existing infer.py — no algorithm rewrites.
 import os
 import sys
 import copy
-import gc
-import hashlib
 import json
 import random
 import importlib.util
 import logging
-import threading
 
 import numpy as np
 import pandas as pd
@@ -70,57 +67,6 @@ def _load_infer_module(config: dict):
         os.chdir(original_cwd)
 
     return mod
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Resources shared between engines (modes)
-# ─────────────────────────────────────────────────────────────────────────────
-# The actionable / informative / readable modes use byte-identical edges.csv and
-# nodes.csv. Loading the KG, the TF-IDF seed index, the node metadata and the BNS
-# converter once per mode tripled their memory. They are read-only at inference
-# time, so they are cached here keyed by file *content* and reused by every mode.
-
-_SHARED: dict = {}
-_SHARED_LOCK = threading.Lock()
-
-
-def _file_digest(path: str) -> str:
-    h = hashlib.md5()
-    with open(path, "rb") as f:
-        for chunk in iter(lambda: f.read(1 << 20), b""):
-            h.update(chunk)
-    return h.hexdigest()
-
-
-def _shared(key: tuple, factory):
-    with _SHARED_LOCK:
-        if key not in _SHARED:
-            _SHARED[key] = factory()
-        else:
-            logger.info("Reusing shared resource %s", key[0])
-        return _SHARED[key]
-
-
-def clear_shared_resources():
-    """Drop cached shared resources (used by tests)."""
-    with _SHARED_LOCK:
-        _SHARED.clear()
-
-
-# System prompt used when the statutory (BNS/BNSS/BSA) layer builds the prompt.
-# The base infer.py SYSTEM_PROMPT forbids citing the IPC under any circumstances,
-# which contradicts the 1 July 2024 transition rule in the user prompt (old codes
-# still govern earlier offences) and frames every answer as criminal law. It is
-# replaced on the loaded module object at runtime; infer.py itself is unchanged.
-STATUTORY_SYSTEM_PROMPT = (
-    "You are an experienced Indian legal advocate advising a client. "
-    "Provide specific, accurate, actionable legal advice under current Indian law. "
-    "Follow the STATUTORY RULES in the user's message exactly, including when to cite the "
-    "Bharatiya Nyaya Sanhita (BNS), Bharatiya Nagarik Suraksha Sanhita (BNSS) and Bharatiya "
-    "Sakshya Adhiniyam (BSA), and the 1 July 2024 transition rule for the old codes. "
-    "Keep answers concise (3-5 sentences). "
-    "Do NOT add disclaimers about consulting a lawyer — the user already knows."
-)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -246,7 +192,7 @@ class LegalQAEngine:
         """
         from inference.config import get_required_files
         missing = []
-        for f in get_required_files(self.config):
+        for f in get_required_files():
             if not os.path.isfile(f["path"]):
                 missing.append(f)
         return missing
@@ -275,8 +221,6 @@ class LegalQAEngine:
         # ── Load the infer.py module ────────────────────────────────────────
         logger.info("Loading infer.py module...")
         self._infer = _load_infer_module(config)
-        if config.get("enable_bns_conversion", True) and hasattr(self._infer, "SYSTEM_PROMPT"):
-            self._infer.SYSTEM_PROMPT = STATUTORY_SYSTEM_PROMPT
 
         # ── Set seed and device ─────────────────────────────────────────────
         self._infer.set_seed(config["seed"])
@@ -285,10 +229,7 @@ class LegalQAEngine:
 
         # ── Load Knowledge Graph ────────────────────────────────────────────
         logger.info("Loading Knowledge Graph from %s...", config["kg_path"])
-        kg_digest = _file_digest(config["kg_path"])
-        self._G, self._node_set = _shared(
-            ("kg", kg_digest), lambda: self._infer.load_kg(config["kg_path"])
-        )
+        self._G, self._node_set = self._infer.load_kg(config["kg_path"])
 
         # ── Load RL model ───────────────────────────────────────────────────
         logger.info("Loading RL policy model from %s...", config["rl_model_path"])
@@ -299,7 +240,7 @@ class LegalQAEngine:
         if self._device.type == "cpu":
             logger.info("Applying dynamic quantization to RL policy model...")
             self._policy = torch.quantization.quantize_dynamic(
-                self._policy, {torch.nn.Linear}, dtype=torch.qint8, inplace=True
+                self._policy, {torch.nn.Linear}, dtype=torch.qint8
             )
 
         # ── Load DSSM model ────────────────────────────────────────────────
@@ -310,7 +251,7 @@ class LegalQAEngine:
         if self._device.type == "cpu":
             logger.info("Applying dynamic quantization to DSSM model...")
             self._dssm = torch.quantization.quantize_dynamic(
-                self._dssm, {torch.nn.Linear}, dtype=torch.qint8, inplace=True
+                self._dssm, {torch.nn.Linear}, dtype=torch.qint8
             )
 
         # ── Load retrieval index ────────────────────────────────────────────
@@ -334,23 +275,24 @@ class LegalQAEngine:
             self._tok = shared_tok
             self._bert = shared_bert
         else:
-            # Prebuilt int8 model if available, else in-place quantization (no fp32 copy kept)
-            from inference.bert_loader import load_bert_low_mem
-            self._tok, self._bert = load_bert_low_mem(config["bert_model"], self._device)
+            logger.info("Loading InLegalBERT (%s)...", config["bert_model"])
+            self._tok, self._bert = self._infer.load_bert(
+                config["bert_model"], self._device
+            )
+            # Apply 8-bit dynamic quantization to save ~330MB of RAM on CPU
+            if self._device.type == "cpu":
+                logger.info("Applying 8-bit dynamic quantization to InLegalBERT for CPU...")
+                self._bert = torch.quantization.quantize_dynamic(
+                    self._bert, {torch.nn.Linear}, dtype=torch.qint8
+                )
 
         # ── Initialize seed chain discovery ─────────────────────────────────
         logger.info("Building TF-IDF index for seed chain discovery...")
-        nodes_digest = _file_digest(config["nodes_csv_path"])
-        seed_top_k = config.get("seed_top_k_candidates", 30)
-        seed_max_chain = config.get("seed_max_chain_len", 4)
-        self._seed_chain = _shared(
-            ("seed_chain", nodes_digest, kg_digest, seed_top_k, seed_max_chain),
-            lambda: SeedChainDiscovery(
-                nodes_csv_path=config["nodes_csv_path"],
-                kg_node_set=self._node_set,
-                top_k=seed_top_k,
-                max_chain=seed_max_chain,
-            ),
+        self._seed_chain = SeedChainDiscovery(
+            nodes_csv_path=config["nodes_csv_path"],
+            kg_node_set=self._node_set,
+            top_k=config.get("seed_top_k_candidates", 30),
+            max_chain=config.get("seed_max_chain_len", 4),
         )
 
         # ── Initialize IPC to BNS statutory transition layer ─────────────────
@@ -362,28 +304,15 @@ class LegalQAEngine:
             try:
                 from ipc_to_bns.bns_converter import BNSConverter, load_node_metadata
                 logger.info("Initializing BNS statutory transition layer...")
-                use_semantic = config.get("semantic_statute_search", False)
-
-                def _make_converter():
-                    conv = BNSConverter(
-                        config.get("bns_mapping_csv"),
-                        config.get("crpc_mapping_csv"),
-                        use_semantic_search=use_semantic,
-                    )
-                    # Statute embeddings are only used by the (default-off) semantic search
-                    if use_semantic:
-                        conv.initialize_embeddings(self._tok, self._bert, self._device)
-                    return conv
-
-                self._bns_converter = _shared(
-                    ("bns_converter", config.get("bns_mapping_csv"),
-                     config.get("crpc_mapping_csv"), use_semantic, id(self._bert)),
-                    _make_converter,
+                self._bns_converter = BNSConverter(
+                    config.get("bns_mapping_csv"),
+                    config.get("crpc_mapping_csv"),
+                    use_semantic_search=config.get("semantic_statute_search", False),
                 )
-                self._node_type_map, self._node_desc_map, _ = _shared(
-                    ("node_metadata", nodes_digest),
-                    lambda: load_node_metadata(config["nodes_csv_path"]),
+                self._node_type_map, self._node_desc_map, _ = load_node_metadata(
+                    config.get("nodes_csv_path", "nodes.csv")
                 )
+                self._bns_converter.initialize_embeddings(self._tok, self._bert, self._device)
                 logger.info("BNS statutory transition layer initialized successfully.")
             except Exception as e:
                 logger.warning("Could not initialize BNSConverter: %s. Falling back to standard prompt.", e)
@@ -474,7 +403,6 @@ class LegalQAEngine:
                 node_desc_map=self._node_desc_map,
                 domain_name=domain_name,
                 q_emb_norm=q_emb_norm,
-                corpus_domain=config.get("corpus_domain"),
             )
             prompt = bns_meta["prompt"]
         else:
