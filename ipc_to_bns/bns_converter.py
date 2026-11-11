@@ -658,6 +658,7 @@ def build_statutory_candidate_menu(
     crpc_to_bnss: Optional[dict] = None,
     bnss_subjects: Optional[dict] = None,
     use_semantic_search: bool = False,
+    max_statutory_sections: int = 15,
 ) -> Tuple[str, List[str]]:
     """
     Compiles candidate legal menu for the modern prompt:
@@ -671,6 +672,12 @@ def build_statutory_candidate_menu(
     penal sections and the full-catalogue semantic search are skipped, and the
     domain (civil) provisions are listed first. No penal section is ever added
     just to keep the menu non-empty.
+
+    Safeguard: at most `max_statutory_sections` BNS/BNSS/BSA lines are kept (default 15).
+    When there are more, the most reliable ones are kept, in this order: sections the
+    user mentioned (IPC/IEA/CrPC) > procedure-keyword BNSS > electronic-evidence BSA 63 >
+    offence keywords > graph-discovered > similarity search. Domain (civil) provisions
+    are capped separately at 10.
     Returns:
       (menu_text: str, mapped_bns_list: List[str])
     """
@@ -785,6 +792,38 @@ def build_statutory_candidate_menu(
                         break
         except Exception as e:
             logger.warning("Full-catalogue semantic ranking encountered an issue: %s", e)
+
+    # 5b. Safeguard: cap the BNS/BNSS/BSA candidates to keep the prompt small.
+    all_lines = ([(ln, "bns") for ln in bns_lines] + [(ln, "bnss") for ln in bnss_lines]
+                 + [(ln, "bsa") for ln in bsa_lines])
+    if max_statutory_sections and len(all_lines) > max_statutory_sections:
+        def source_priority(line: str) -> int:
+            m = re.search(r"\(formerly CrPC Section ([^)]+)\)", line)
+            if m:
+                return 0 if m.group(1) in explicit_crpcs else 1        # user-mentioned vs procedure cue
+            if "(formerly IPC Section" in line or "(formerly Evidence Act Section" in line:
+                return 0                                               # user-mentioned
+            if "relying on electronic records" in line:
+                return 2
+            if "(Offense Provision)" in line:
+                return 3
+            if "(Graph Discovered)" in line:
+                return 4
+            return 5                                                   # similarity search / other
+
+        ranked = sorted(range(len(all_lines)), key=lambda i: (source_priority(all_lines[i][0]), i))
+        keep = set(ranked[:max_statutory_sections])
+        dropped_bns = {
+            m.group(1)
+            for i, (ln, kind) in enumerate(all_lines)
+            if i not in keep and kind == "bns" and (m := re.match(r"- Section (\S+) BNS", ln))
+        }
+        bns_lines = [ln for i, (ln, k) in enumerate(all_lines) if k == "bns" and i in keep]
+        bnss_lines = [ln for i, (ln, k) in enumerate(all_lines) if k == "bnss" and i in keep]
+        bsa_lines = [ln for i, (ln, k) in enumerate(all_lines) if k == "bsa" and i in keep]
+        mapped_bns_list = [m for m in mapped_bns_list if m.split()[1] not in dropped_bns]
+        logger.info("Statutory menu capped: kept %d of %d candidate sections",
+                    max_statutory_sections, len(all_lines))
 
     # 6. (Removed) The former "fallback guarantee" inserted defamation / cheating /
     #    obscenity sections whenever nothing penal was found, which pushed BNS offences

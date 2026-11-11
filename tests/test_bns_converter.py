@@ -175,6 +175,45 @@ class TestCandidateMenu(unittest.TestCase):
         lab, _ = self._menu("I work in the maintenance department and my salary is unpaid for 3 months.")
         self.assertNotIn("144", lab)
 
+    def _menu_kwargs(self, **over):
+        kw = dict(
+            explicit_ipcs=set(), kg_ipcs=set(), ipc_to_bns=self.conv.ipc_to_bns,
+            explicit_ieas=set(), kg_ieas=set(), iea_to_bsa=self.conv.iea_to_bsa,
+            kg_domain_sections={}, modern_semantics=self.conv.modern_semantics,
+            question="", is_criminal=True,
+        )
+        kw.update(over)
+        return kw
+
+    def test_menu_capped_at_15_sections(self):
+        from ipc_to_bns.bns_converter import build_statutory_candidate_menu
+        mapped = sorted(k for k in self.conv.ipc_to_bns if k.isdigit())[:20]   # 20 user-mentioned IPC sections
+        menu, mapped_list = build_statutory_candidate_menu(**self._menu_kwargs(explicit_ipcs=set(mapped)))
+        lines = [ln for ln in menu.splitlines() if ln.startswith("- Section")]
+        self.assertEqual(len(lines), 15)
+        self.assertLessEqual(len(mapped_list), 15)
+
+    def test_cap_keeps_user_mentioned_before_graph_and_keywords(self):
+        from ipc_to_bns.bns_converter import build_statutory_candidate_menu
+        keys = sorted(k for k in self.conv.ipc_to_bns if k.isdigit())
+        explicit, graph = set(keys[:10]), set(keys[100:120])
+        menu, _ = build_statutory_candidate_menu(**self._menu_kwargs(
+            explicit_ipcs=explicit, kg_ipcs=graph,
+            question="he threatened me and police won't register my FIR",
+            explicit_crpcs={"438"}, crpc_to_bnss=self.conv.crpc_to_bnss, bnss_subjects=self.conv.bnss_subjects,
+        ))
+        lines = [ln for ln in menu.splitlines() if ln.startswith("- Section")]
+        self.assertEqual(len(lines), 15)
+        self.assertGreaterEqual(sum("(formerly IPC Section" in ln for ln in lines), 10)   # all user-mentioned IPC kept
+        self.assertIn("formerly CrPC Section 438", menu)                                   # user-mentioned CrPC kept
+        self.assertIn("formerly CrPC Section 154", menu)                                   # procedure cue kept
+        self.assertNotIn("(Graph Discovered)", menu)                                       # lowest priority dropped first
+
+    def test_small_menu_not_affected_by_cap(self):
+        menu, _ = self._menu("Police registered FIR u/s 420 IPC and threatened me. Anticipatory bail u/s 438?")
+        self.assertIn("318(4) BNS", menu)
+        self.assertIn("Section 482 BNSS (formerly CrPC Section 438)", menu)
+
     def test_semantic_catalogue_search_off_by_default(self):
         import torch
         from ipc_to_bns.bns_converter import build_statutory_candidate_menu
