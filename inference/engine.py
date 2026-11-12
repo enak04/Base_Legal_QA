@@ -363,6 +363,7 @@ class LegalQAEngine:
             self._G, self._all_nodes, self._node2idx, self._idx2node,
             self._node_emb_dict, device,
             steps=config["rl_test_steps"],
+            greedy=config.get("rl_greedy", True),
         )
 
         # Step 4: Encode extended chain

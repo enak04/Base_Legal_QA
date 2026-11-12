@@ -51,6 +51,7 @@ INFERENCE_CONFIG = {
 
     # ── RL inference ────────────────────────────────────────────────────────
     "rl_test_steps":        2,
+    "rl_greedy":            True,   # argmax over valid successors (deterministic); False = sample
     "use_chain_query_expand": True,
 
     # ── seed chain discovery (TF-IDF over KG node labels) ───────────────────

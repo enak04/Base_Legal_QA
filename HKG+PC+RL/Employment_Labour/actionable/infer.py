@@ -234,7 +234,7 @@ def get_chain_state(chain_nodes, node_emb_dict, fallback_emb, chain_attn, device
 # RL chain prediction
 # ─────────────────────────────────────────────────────────────────────────────
 def predict_chain_rl(chain_q, q_emb, policy, chain_attn, G, all_nodes,
-                     node2idx, idx2node, node_emb_dict, device, steps=4):
+                     node2idx, idx2node, node_emb_dict, device, steps=4, greedy=False):
     policy.eval(); chain_attn.eval()
     q_cot   = copy.deepcopy(chain_q)
     visited = set(q_cot)
@@ -251,7 +251,7 @@ def predict_chain_rl(chain_q, q_emb, policy, chain_attn, G, all_nodes,
             mask = torch.full((len(all_nodes),), float("-inf"), device=device)
             mask[torch.tensor(valid_idx, dtype=torch.long, device=device)] = 0.0
             probs  = F.softmax(logits + mask, dim=0)
-            action = Categorical(probs).sample()
+            action = probs.argmax() if greedy else Categorical(probs).sample()
             nxt    = idx2node[action.item()]
             q_cot.append(nxt); visited.add(nxt)
     return q_cot
