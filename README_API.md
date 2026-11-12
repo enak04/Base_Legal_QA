@@ -51,9 +51,18 @@ Run legal QA inference for a single question.
 **Request:**
 ```json
 {
-    "question": "My employer has not paid my salary for three months."
+    "question": "My employer has not paid my salary for three months.",
+    "mode": "actionable",
+    "domain": "auto"
 }
 ```
+
+- `mode`: `actionable` (default), `informative` or `readable`.
+- `domain`: `auto` (default), `labour`, `criminal` or `family`. It selects which
+  `HKG+PC+RL/<domain>/<mode>` knowledge graph and models are used. `auto` classifies the question
+  with a keyword heuristic, so pass the domain explicitly when the frontend knows it.
+  If a domain has no trained checkpoints yet, the labour models answer it, and the response
+  reports `domain_fallback: true`.
 
 **Response:**
 ```json
@@ -66,9 +75,17 @@ Run legal QA inference for a single question.
             "question": "My company has not paid salary for 2 months...",
             "answer": "You can file a complaint with the Labour Commissioner..."
         }
-    ]
+    ],
+    "domain": "labour",
+    "domain_used": "labour",
+    "domain_fallback": false
 }
 ```
+
+### `GET /domains`
+
+Lists every domain/mode with `available` (trained checkpoints on disk) and `loaded` (in memory).
+At startup the server loads every available domain/mode.
 
 **Error Responses:**
 

@@ -90,6 +90,60 @@ class TestPredictValidation:
         )
         assert resp.status_code == 422
 
+    def test_invalid_domain(self, client):
+        """Request body with an unknown domain should return 422."""
+        resp = client.post(
+            "/predict",
+            json={"question": "My employer has not paid my salary.", "domain": "tax"},
+        )
+        assert resp.status_code == 422
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Domain routing
+# ─────────────────────────────────────────────────────────────────────────────
+
+class TestDomains:
+    def test_domains_lists_every_domain_and_mode(self, client):
+        resp = client.get("/domains")
+        assert resp.status_code == 200
+        pairs = {(r["domain"], r["mode"]) for r in resp.json()}
+        assert pairs == {(d, m) for d in ("labour", "criminal", "family")
+                         for m in ("actionable", "informative", "readable")}
+
+    def test_configs_point_at_domain_folders(self):
+        from inference.config import make_config
+        cfg = make_config("criminal", "readable")
+        assert cfg["rl_model_path"].replace("\\", "/").endswith("HKG+PC+RL/criminal/readable/rl_policy_model.pt")
+        assert cfg["domain_name"] == "Criminal Law"
+        assert cfg["auto_detect_domain"] is False
+
+    def test_required_files_follow_engine_config(self):
+        """check_required_files must check the engine's own folder, not the default labour one."""
+        from inference.config import make_config
+        from inference.engine import LegalQAEngine
+        cfg = make_config("family", "actionable")
+        cfg["rl_model_path"] = cfg["rl_model_path"] + ".does-not-exist"
+        missing = {f["name"] for f in LegalQAEngine(cfg).check_required_files()}
+        assert "rl_policy_model.pt" in missing
+
+    def test_untrained_domain_falls_back_to_labour(self, client):
+        from api.app import is_available
+        if is_available("family", "actionable"):
+            pytest.skip("Family checkpoints are present — no fallback to test.")
+        if not is_available("labour", "actionable"):
+            pytest.skip("Labour checkpoints not available.")
+        resp = client.post(
+            "/predict",
+            json={"question": "My husband wants a divorce and custody of our child.", "domain": "family"},
+        )
+        assert resp.status_code in (200, 500)
+        if resp.status_code == 200:
+            data = resp.json()
+            assert data["domain"] == "family"
+            assert data["domain_used"] == "labour"
+            assert data["domain_fallback"] is True
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Predict endpoint — models not loaded (503)

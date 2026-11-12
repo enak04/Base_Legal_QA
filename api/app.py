@@ -30,7 +30,6 @@ repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.environ["HF_HOME"] = os.path.join(repo_root, ".hf_cache")
 
 import asyncio
-import copy
 import torch
 from typing import Literal, Optional
 
@@ -38,8 +37,9 @@ from typing import Literal, Optional
 if not torch.cuda.is_available():
     torch.set_num_threads(max(1, min(4, os.cpu_count() or 4)))
 
-from inference.config import INFERENCE_CONFIG, get_required_files
+from inference.config import DOMAINS, MODES, FALLBACK_DOMAIN, make_config, get_required_files
 from inference.engine import LegalQAEngine
+from ipc_to_bns.bns_converter import detect_legal_domain
 
 # ── Logging ─────────────────────────────────────────────────────────────────
 logging.basicConfig(
@@ -49,49 +49,40 @@ logging.basicConfig(
 logger = logging.getLogger("legal_qa_api")
 
 # ── Dynamic Config Construction ──────────────────────────────────────────────
-def make_config_for_mode(mode: str) -> dict:
-    cfg = copy.deepcopy(INFERENCE_CONFIG)
-    
-    # Resolve the data directory for the specific mode
-    repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    mode_dir = os.path.join(repo_root, "HKG+PC+RL", "Employment_Labour", mode)
-    
-    cfg["LEGAL_QA_DATA_DIR"] = mode_dir
-    
-    def _data_path(filename: str) -> str:
-        return os.path.join(mode_dir, filename)
-        
-    cfg["rl_model_path"] = _data_path("rl_policy_model.pt")
-    cfg["dssm_model_path"] = _data_path("dssm_model.pt")
-    cfg["retrieval_index"] = _data_path("dssm_retrieval_index.pt")
-    cfg["node_emb_cache_path"] = _data_path("node_embeddings.pt")
-    cfg["kg_path"] = _data_path("edges.csv")
-    cfg["nodes_csv_path"] = _data_path("nodes.csv")
-    
-    return cfg
+def make_config_for_mode(mode: str, domain: str = FALLBACK_DOMAIN) -> dict:
+    """Config for one HKG+PC+RL domain/mode folder (domain defaults to labour)."""
+    return make_config(domain, mode)
+
+
+def is_available(domain: str, mode: str) -> bool:
+    """True if every checkpoint/data file for this domain/mode exists on disk."""
+    return all(os.path.isfile(f["path"]) for f in get_required_files(make_config(domain, mode)))
+
 
 # ── Engines Dictionary ──────────────────────────────────────────────────────
-engines: dict[str, LegalQAEngine] = {}
+# Keyed by (domain, mode), e.g. ("criminal", "actionable").
+engines: dict[tuple[str, str], LegalQAEngine] = {}
 
 # ── Shared InLegalBERT instances ───────────────────────────────────────────
 shared_tok = None
 shared_bert = None
 
-def get_engine_for_mode(mode: str) -> LegalQAEngine:
+def get_engine(domain: str, mode: str) -> LegalQAEngine:
     global shared_tok, shared_bert
 
     # If the engine is already loaded, return it immediately from cache
-    if mode in engines:
-        return engines[mode]
+    key = (domain, mode)
+    if key in engines:
+        return engines[key]
 
-    logger.info(f"Loading and caching engine for mode: {mode}...")
-    cfg = make_config_for_mode(mode)
+    logger.info("Loading and caching engine for %s/%s...", domain, mode)
+    cfg = make_config(domain, mode)
     eng = LegalQAEngine(cfg)
 
     # Check that required files are present
     missing = eng.check_required_files()
     if missing:
-        msg_lines = [f"Missing required checkpoints for mode {mode}:"]
+        msg_lines = [f"Missing required checkpoints for {domain}/{mode}:"]
         for f in missing:
             msg_lines.append(f"  ✗ {f['name']} (Path: {f['path']})")
         raise FileNotFoundError("\n".join(msg_lines))
@@ -113,27 +104,58 @@ def get_engine_for_mode(mode: str) -> LegalQAEngine:
 
     # Load engine models using the shared BERT instances
     eng.load_models(shared_tok=shared_tok, shared_bert=shared_bert)
-    engines[mode] = eng
+    engines[key] = eng
     return eng
+
+
+def get_engine_for_mode(mode: str) -> LegalQAEngine:
+    """Backward-compatible alias: the labour engine for a mode."""
+    return get_engine(FALLBACK_DOMAIN, mode)
+
+
+def resolve_engine(requested_domain: str, question: str, mode: str):
+    """
+    Pick the engine for a request.
+
+    Returns (engine, domain_detected, domain_used). `domain_detected` is the
+    requested domain, or the keyword classifier's guess when "auto". If that
+    domain has no trained checkpoints yet, the labour engine serves it
+    (`domain_used` = "labour") and the prompt keeps the detected domain's label.
+    """
+    if requested_domain == "auto":
+        label = detect_legal_domain(question, default=DOMAINS[FALLBACK_DOMAIN][1])
+        domain = next(k for k, (_, lbl) in DOMAINS.items() if lbl == label)
+    else:
+        domain = requested_domain
+
+    if domain != FALLBACK_DOMAIN and not is_available(domain, mode):
+        logger.info("No trained checkpoints for %s/%s — falling back to %s.", domain, mode, FALLBACK_DOMAIN)
+        return get_engine(FALLBACK_DOMAIN, mode), domain, FALLBACK_DOMAIN
+    return get_engine(domain, mode), domain, domain
 
 # ── Lifespan (startup pre-warming) ─────────────────────────────────────────
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Pre-warms all 3 modes on startup so every query is fast with 0s swap delay."""
+    """Pre-loads every domain/mode that has trained checkpoints, so queries never wait on loading."""
     logger.info("=" * 65)
-    logger.info("  Legal QA API — Starting & pre-warming all 3 modes into RAM...")
+    logger.info("  Legal QA API — Starting & pre-loading all available domain/mode engines...")
     logger.info("=" * 65)
 
-    for mode in ["actionable", "informative", "readable"]:
-        try:
-            logger.info("  → Pre-warming '%s' mode...", mode)
-            get_engine_for_mode(mode)
-        except Exception as e:
-            logger.warning("  ⚠️ Could not pre-warm mode '%s': %s", mode, e)
+    for domain in DOMAINS:
+        for mode in MODES:
+            if not is_available(domain, mode):
+                logger.warning("  ⚠️ %s/%s: no trained checkpoints — requests fall back to %s.",
+                               domain, mode, FALLBACK_DOMAIN)
+                continue
+            try:
+                logger.info("  → Loading %s/%s...", domain, mode)
+                get_engine(domain, mode)
+            except Exception as e:
+                logger.warning("  ⚠️ Could not load %s/%s: %s", domain, mode, e)
 
     logger.info("=" * 65)
-    logger.info("  ✅ All 3 modes pre-warmed & ready for instantaneous inference!")
+    logger.info("  ✅ Loaded engines: %s", ", ".join(f"{d}/{m}" for d, m in engines) or "none")
     logger.info("=" * 65)
 
     yield  # Server runs here
@@ -176,6 +198,13 @@ class PredictRequest(BaseModel):
         "actionable",
         description="The target answer tuning mode.",
     )
+    domain: Literal["auto", "labour", "criminal", "family"] = Field(
+        "auto",
+        description=(
+            "Legal domain whose knowledge graph and models to use. 'auto' classifies the "
+            "question by keywords; pass the domain explicitly when you know it."
+        ),
+    )
 
 
 class RetrievedCase(BaseModel):
@@ -196,10 +225,20 @@ class PredictResponse(BaseModel):
     reasoning_chain: list[str]
     retrieved_cases: list[RetrievedCase]
     bns_data: Optional[BNSData] = Field(None, description="IPC to BNS conversion details if applicable")
+    domain: str = Field(..., description="Domain of the question (requested, or detected when 'auto').")
+    domain_used: str = Field(..., description="Domain whose knowledge graph and models produced the chain and cases.")
+    domain_fallback: bool = Field(False, description="True when the question's domain has no trained models yet and the labour models were used.")
 
 
 class HealthResponse(BaseModel):
     status: str
+
+
+class DomainStatus(BaseModel):
+    domain: str
+    mode: str
+    available: bool = Field(..., description="Trained checkpoints are present on disk.")
+    loaded: bool = Field(..., description="Engine is loaded in memory.")
 
 
 class ErrorResponse(BaseModel):
@@ -232,6 +271,18 @@ async def health():
     return {"status": "ok"}
 
 
+@app.get(
+    "/domains",
+    response_model=list[DomainStatus],
+    summary="Which domain/mode engines have trained models and are loaded",
+)
+async def domains():
+    return [
+        {"domain": d, "mode": m, "available": is_available(d, m), "loaded": (d, m) in engines}
+        for d in DOMAINS for m in MODES
+    ]
+
+
 @app.post(
     "/predict",
     response_model=PredictResponse,
@@ -259,23 +310,25 @@ async def predict(request: PredictRequest):
     if not question:
         raise HTTPException(status_code=400, detail="Question cannot be empty.")
 
-    # ── Get or load the requested engine mode ───────────────────────────
+    # ── Route to the engine for this domain/mode ────────────────────────
     mode = request.mode
-    logger.info("📩 Incoming Query [Mode: %s]: %s", mode, question)
+    logger.info("📩 Incoming Query [Domain: %s | Mode: %s]: %s", request.domain, mode, question)
     try:
-        engine = get_engine_for_mode(mode)
+        engine, domain, domain_used = resolve_engine(request.domain, question, mode)
     except Exception as e:
-        logger.error("Failed to load engine for mode %s: %s", mode, e, exc_info=True)
+        logger.error("Failed to load engine for %s/%s: %s", request.domain, mode, e, exc_info=True)
         raise HTTPException(
             status_code=503,
-            detail=f"Mode '{mode}' could not be loaded: {e}",
+            detail=f"Domain '{request.domain}' / mode '{mode}' could not be loaded: {e}",
         )
 
     # ── Run inference (offloaded to threadpool to keep event loop responsive) ───
     try:
-        result = await asyncio.to_thread(engine.predict, question)
+        # Prompt label is always the question's domain, even when another domain's engine serves it.
+        result = await asyncio.to_thread(engine.predict, question, DOMAINS[domain][1])
+        result.update(domain=domain, domain_used=domain_used, domain_fallback=(domain != domain_used))
         chain_summary = " -> ".join(result.get("reasoning_chain", []))
-        logger.info("✅ Query Completed [Mode: %s] | Chain: %s", mode, chain_summary)
+        logger.info("✅ Query Completed [%s via %s/%s] | Chain: %s", domain, domain_used, mode, chain_summary)
     except Exception as e:
         logger.error("Inference failed for question: %s", question, exc_info=True)
 

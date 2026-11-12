@@ -191,11 +191,7 @@ class LegalQAEngine:
         Returns a list of dicts describing missing files.
         """
         from inference.config import get_required_files
-        missing = []
-        for f in get_required_files():
-            if not os.path.isfile(f["path"]):
-                missing.append(f)
-        return missing
+        return [f for f in get_required_files(self.config) if not os.path.isfile(f["path"])]
 
     def load_models(self, shared_tok=None, shared_bert=None):
         """
@@ -221,6 +217,11 @@ class LegalQAEngine:
         # ── Load the infer.py module ────────────────────────────────────────
         logger.info("Loading infer.py module...")
         self._infer = _load_infer_module(config)
+        # The per-domain infer.py files ship different system prompts (criminal and
+        # family both say "criminal defense attorney" and omit the BNS mandate).
+        # Use one Indian-advocate prompt for every domain.
+        if config.get("system_prompt"):
+            self._infer.SYSTEM_PROMPT = config["system_prompt"]
 
         # ── Set seed and device ─────────────────────────────────────────────
         self._infer.set_seed(config["seed"])
@@ -326,7 +327,7 @@ class LegalQAEngine:
         logger.info("All models loaded successfully.")
 
 
-    def predict(self, question: str) -> dict:
+    def predict(self, question: str, domain_name: str | None = None) -> dict:
         """
         Run the full inference pipeline for a single question.
 
@@ -386,14 +387,15 @@ class LegalQAEngine:
         if self._enable_bns and self._bns_converter is not None:
             q_emb_norm = F.normalize(q_emb, dim=1) if q_emb is not None else None
 
-            # Classify the question as criminal / family & matrimonial / labour so the
-            # conversion layer only applies penal (BNS) framing to criminal matters.
-            # Only the label passed to the prompt changes; graph, RL and retrieval do not.
-            # Set auto_detect_domain=False to force config["domain_name"] (e.g. per-domain batch runs).
-            domain_name = config.get("domain_name", "Employment & Labour Law")
-            if config.get("auto_detect_domain", True):
-                from ipc_to_bns.bns_converter import detect_legal_domain
-                domain_name = detect_legal_domain(question, default=domain_name)
+            # Domain label for the prompt; the conversion layer only applies penal (BNS)
+            # framing to criminal matters. Only the label changes; graph, RL and retrieval do not.
+            # Priority: explicit domain_name argument (e.g. a family question served by the
+            # labour engine as a fallback) > auto-detection > config["domain_name"].
+            if domain_name is None:
+                domain_name = config.get("domain_name", "Employment & Labour Law")
+                if config.get("auto_detect_domain", True):
+                    from ipc_to_bns.bns_converter import detect_legal_domain
+                    domain_name = detect_legal_domain(question, default=domain_name)
 
             bns_meta = self._bns_converter.process_query(
                 question=question,
